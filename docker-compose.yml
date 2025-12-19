@@ -1,0 +1,23 @@
+services:
+  messagebroker:
+    build:
+      context: messagebroker
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - messagebroker:/mosquitto/data/
+
+  database:
+    build:
+      context: database
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+      - db.env
+    volumes:
+      - database:/var/lib/postgresql
+
+volumes:
+  database:
+  messagebroker:
