@@ -3,6 +3,8 @@
  */
 package pt.ue.ambiente.server;
 
+import pt.ue.ambiente.server.data.entity.Dispositivo;
+
 public class ServerAmbienteUE {
     public String getGreeting() {
         return "Hello World!";
@@ -10,5 +12,8 @@ public class ServerAmbienteUE {
 
     public static void main(String[] args) {
         System.out.println(new ServerAmbienteUE().getGreeting());
+        Dispositivo d = new Dispositivo(); 
+        
+        
     }
 }

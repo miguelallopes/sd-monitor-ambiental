@@ -18,15 +18,18 @@ repositories {
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
+    implementation("org.springframework.data:spring-data-jpa:4.0.1")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // This dependency is used by the application.
     implementation(libs.guava)
+
+    runtimeOnly("org.postgresql:postgresql:42.1.4")
+	compileOnly("org.projectlombok:lombok:1.18.42")
+  	annotationProcessor("org.projectlombok:lombok:1.18.42")
     
     implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
-    implementation("org.springframework.data:spring-data-jpa:4.0.1")
-    implementation("org.postgresql:postgresql:42.1.4")
 
 
 }
