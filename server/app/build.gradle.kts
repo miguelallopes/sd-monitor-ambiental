@@ -8,6 +8,26 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+
+    id("com.google.protobuf") version "0.9.5"
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.8"
+    }
+    plugins {
+        create("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.78.0"
+        }
+    }
+    generateProtoTasks {
+        all().forEach {
+            it.plugins {
+                create("grpc") { }
+            }
+        }
+    }
 }
 
 repositories {
@@ -18,6 +38,13 @@ repositories {
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
+
+    runtimeOnly("io.grpc:grpc-netty-shaded:1.78.0")
+    implementation("io.grpc:grpc-protobuf:1.78.0")
+    implementation("io.grpc:grpc-stub:1.78.0")
+    implementation("org.springframework.boot:spring-boot-starter-web:4.0.1")
+	testImplementation("org.springframework.boot:spring-boot-starter-test:4.0.1")
+    implementation("org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5")
     implementation("org.springframework.data:spring-data-jpa:4.0.1")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
