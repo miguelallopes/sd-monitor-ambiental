@@ -3,16 +3,69 @@
  */
 package pt.ue.ambiente.server;
 
+import java.io.IOException;
+
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import pt.ue.ambiente.server.data.entity.Dispositivo;
+import pt.ue.ambiente.server.grpc.ServerAmbienteGrpcUE;
 
 public class ServerAmbienteUE {
-    public String getGreeting() {
-        return "Hello World!";
+    private static final int PORT = 50051;
+    private Server server;
+
+  
+    private void start() throws IOException {
+        server = ServerBuilder.forPort(PORT)
+                .addService(new ServerAmbienteGrpcUE())
+                .build()
+                .start();
+
+        System.out.println("===========================================");
+        System.out.println("Servidor gRPC iniciado na porta " + PORT);
+        System.out.println("===========================================");
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.err.println("*** A desligar servidor gRPC devido a shutdown da JVM");
+            try {
+                ServerAmbienteUE.this.stop();
+            } catch (InterruptedException e) {
+                e.printStackTrace(System.err);
+            }
+            System.err.println("*** Servidor desligado");
+        }));
     }
 
+
+    private void stop() throws InterruptedException {
+        if (server != null) {
+            server.shutdown().awaitTermination();
+        }
+    }
+
+ 
+    private void blockUntilShutdown() throws InterruptedException {
+        if (server != null) {
+            server.awaitTermination();
+        }
+    }
+
+ 
     public static void main(String[] args) {
-        System.out.println(new ServerAmbienteUE().getGreeting());
-        
-        
+        final ServerAmbienteUE server = new ServerAmbienteUE();
+
+        try {
+            server.start();
+
+            server.blockUntilShutdown();
+
+        } catch (IOException e) {
+            System.err.println("Erro ao iniciar o servidor: " + e.getMessage());
+            e.printStackTrace();
+
+        } catch (InterruptedException e) {
+            System.err.println("Servidor interrompido: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

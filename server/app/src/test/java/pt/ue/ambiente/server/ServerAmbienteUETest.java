@@ -7,5 +7,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServerAmbienteUETest {
+
+    @Test
+    void testGetGreetingReturnsHelloWorld() {
+        ServerAmbienteUE server = new ServerAmbienteUE();
+        assertEquals("Hello World!", server.getGreeting());
+    }
+
+    @Test
+    void testTrueIsTrue() {
+        assertTrue(true);
+    }
     
 }

@@ -1,4 +1,5 @@
 package pt.ue.ambiente.server.data.entity;
+
 import lombok.Data;
 
 import java.util.Collection;
@@ -8,7 +9,9 @@ import jakarta.persistence.*;
 @Entity
 @Data
 public class Dispositivo {
-    @Id @GeneratedValue private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
     private String nome;
 
@@ -26,7 +29,6 @@ public class Dispositivo {
 
     @OneToMany(mappedBy = "dispositivo")
     private Collection<Metricas> metricas;
-
 
     protected Dispositivo() {
     }

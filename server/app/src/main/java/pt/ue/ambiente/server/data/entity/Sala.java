@@ -16,7 +16,7 @@ public class Sala {
     private Collection<Dispositivo> dispositivos;
 
     protected Sala() {
-
+        
     }
 
     public Sala(String sala) {

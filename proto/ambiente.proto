@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_package = "pt.ue.ambiente.server.grpc";
+option java_outer_classname = "AmbienteProto";
+
+service AmbienteService {
+  rpc submeterDadosAmbiente (AmbienteServiceRequest) returns (AmbienteServiceReply);
+}
+
+enum AmbienteServiceClockStatus {
+  SUBMISSION_SUCCESS = 0;
+  SUBMISSION_CLOCK_EARLY = 1;
+  SUBMISSION_CLOCK_LATE = 2;
+  SUBMISSION_INVALID = 3;
+}
+
+message AmbienteServiceRequest {
+  uint32 device_id = 1;
+  float temperatura = 2;
+  uint32 humidade = 3;
+  string timestamp = 4;
+}
+
+message AmbienteServiceReply {
+    bool status = 1; // Aceitacao
+
+    AmbienteServiceClockStatus clock_status = 2;
+    bool temperatura_status = 3;
+    bool humidade_status = 4;
+} 
