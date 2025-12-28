@@ -18,7 +18,6 @@ import pt.ue.ambiente.server.data.repository.PisoRepository;
 import pt.ue.ambiente.server.data.repository.SalaRepository;
 import pt.ue.ambiente.server.grpc.AmbienteProto.AmbienteServiceClockStatus;
 
-
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
@@ -39,18 +38,15 @@ public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImp
     public ServerAmbienteGrpcUE(ServerAmbienteDataUE repositories) {
         this.repositories = repositories;
     }
- 
+
     @Override
-    public void submeterDadosAmbiente(AmbienteServiceRequest request, StreamObserver<AmbienteServiceReply> responseObserver) {
+    public void submeterDadosAmbiente(AmbienteServiceRequest request,
+            StreamObserver<AmbienteServiceReply> responseObserver) {
         responseObserver.onNext(executarSubmeterDadosAmbiente(request));
         responseObserver.onCompleted();
     }
-    
-    /* COMO VAI SER PROCESSADO O REQUEST*/
-    private AmbienteServiceReply executarSubmeterDadosAmbiente(AmbienteServiceRequest request) {
-     
-        
 
+    private AmbienteServiceReply executarSubmeterDadosAmbiente(AmbienteServiceRequest request) {
 
         // Variaveis a usar na resposta
         OffsetDateTime tempoInicioProcessamento = OffsetDateTime.now();
@@ -58,64 +54,61 @@ public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImp
         boolean status_humidade = false;
         boolean status_temperatura = false;
 
-
         // Apanhar os dados
         int deviceId = request.getDeviceId();
         float temperatura = request.getTemperatura();
         int humidade = request.getHumidade();
-    
+
         OffsetDateTime timestamp = null;
 
         try {
             timestamp = OffsetDateTime.parse(request.getTimestamp());
-            status_clock = AmbienteServiceClockStatus.SUBMISSION_SUCCESS;
-            // Verificar se atrasou ou adientou
+
+            long diferenca = java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
+
+            if (diferenca > 15) {
+                // Relogio atrasado
+                status_clock = AmbienteServiceClockStatus.SUBMISSION_CLOCK_EARLY;
+            } else if (diferenca < -15) {
+                // Relogio adientado
+                status_clock = AmbienteServiceClockStatus.SUBMISSION_CLOCK_LATE;
+            } else {
+                status_clock = AmbienteServiceClockStatus.SUBMISSION_SUCCESS;
+            }
         } catch (DateTimeParseException e) {
             timestamp = null;
         }
 
         boolean status = false;
 
-
-        // Validar se o deviceId existe na base de dados
-        // Senao existir abortar
-        
         Optional<Dispositivo> device = null;
         try {
             device = repositories.dispositivoRepository.findById(Long.valueOf(deviceId));
         } catch (EntityNotFoundException e) {
 
         }
-       
 
         if (device.isPresent()) {
             if (humidade >= 0 && humidade <= 100) {
-                    status_humidade = true;
-                }
+                status_humidade = true;
+            }
 
-                if (temperatura >= -50 && temperatura <= 100) {
-                    status_temperatura = true;
-                }
+            if (temperatura >= -50 && temperatura <= 100) {
+                status_temperatura = true;
+            }
 
-                status = status_temperatura && status_humidade && (status_clock.equals(AmbienteServiceClockStatus.SUBMISSION_SUCCESS));
-                System.out.println(deviceId);
-                System.out.println(temperatura);
-                System.out.println(timestamp);
-                System.out.println(humidade);
+            status = status_temperatura && status_humidade
+                    && (status_clock.equals(AmbienteServiceClockStatus.SUBMISSION_SUCCESS));
 
-                System.out.print(device);
-
-                repositories.metricasRepository.save(new Metricas(device.get(), Protocolo.gRPC, temperatura, humidade));
+            repositories.metricasRepository.save(new Metricas(device.get(), Protocolo.gRPC, temperatura, humidade));
 
         }
 
-       
-
         return AmbienteServiceReply.newBuilder()
-            .setStatus(status)
-            .setClockStatus(status_clock)
-            .setHumidadeStatus(status_humidade)
-            .setTemperaturaStatus(status_temperatura)
-            .build();
-    } 
+                .setStatus(status)
+                .setClockStatus(status_clock)
+                .setHumidadeStatus(status_humidade)
+                .setTemperaturaStatus(status_temperatura)
+                .build();
+    }
 }
