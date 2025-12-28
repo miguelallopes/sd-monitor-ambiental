@@ -1,7 +1,9 @@
 package pt.ue.ambiente.server.data.repository;
 
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 import pt.ue.ambiente.server.data.entity.Sala;
 
@@ -9,11 +11,11 @@ import pt.ue.ambiente.server.data.entity.Departamento;
 import pt.ue.ambiente.server.data.entity.Edificio;
 import pt.ue.ambiente.server.data.entity.Piso;
 import pt.ue.ambiente.server.data.entity.Metricas;
-import pt.ue.ambiente.server.data.entity.MetricasId;
 
 import java.util.List;
 
-public interface MetricasRepository extends CrudRepository<Metricas, MetricasId> {
+@Repository
+public interface MetricasRepository extends JpaRepository<Metricas, Long> {
 
     List<Metricas> findBySala(Sala sala);
     List<Metricas> findByEdificio(Edificio edificio);

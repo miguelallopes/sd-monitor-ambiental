@@ -1,8 +1,8 @@
 package pt.ue.ambiente.server.data.entity;
 
 import java.util.Collection;
-
 import jakarta.persistence.*;
+
 import lombok.Data;
 
 @Entity

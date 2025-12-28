@@ -29,8 +29,8 @@ public class ClientAmbienteGrpcUE {
             AmbienteServiceGrpc.AmbienteServiceBlockingStub stub = AmbienteServiceGrpc.newBlockingStub(channel);
         
             AmbienteServiceRequest request =  AmbienteServiceRequest.newBuilder()
-                    .setTemperatura(-51)
-                    .setHumidade(101)
+                    .setTemperatura(10)
+                    .setHumidade(99)
                     .setDeviceId(1)
                     .setTimestamp(OffsetDateTime.now().toString())
                     .build();

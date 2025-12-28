@@ -7,6 +7,11 @@
 
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
+
+    id("org.springframework.boot") version "4.0.1"
+
+    id("io.spring.dependency-management") version "1.1.7"
+
     application
 
     id("com.google.protobuf") version "0.9.5"
@@ -36,28 +41,29 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation(libs.junit.jupiter)
-
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.data:spring-data-jpa")
+    
+    // GRPC
     runtimeOnly("io.grpc:grpc-netty-shaded:1.78.0")
     implementation("io.grpc:grpc-protobuf:1.78.0")
     implementation("io.grpc:grpc-stub:1.78.0")
-    implementation("org.springframework.boot:spring-boot-starter-web:4.0.1")
-	testImplementation("org.springframework.boot:spring-boot-starter-test:4.0.1")
-    implementation("org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5")
-    implementation("org.springframework.data:spring-data-jpa:4.0.1")
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    // This dependency is used by the application.
-    implementation(libs.guava)
-
-    runtimeOnly("org.postgresql:postgresql:42.1.4")
-	compileOnly("org.projectlombok:lombok:1.18.42")
-  	annotationProcessor("org.projectlombok:lombok:1.18.42")
     
-    implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
+    //MQTT
+    implementation("org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5")
+    
+    //Database
+    runtimeOnly("org.postgresql:postgresql:42.7.8")
+    
+	testImplementation("org.springframework.boot:spring-boot-starter-test:4.0.1")
+    
+    //lombok
+    compileOnly("org.projectlombok:lombok:1.18.42")
+  	annotationProcessor("org.projectlombok:lombok:1.18.42")
 
+    // Use JUnit Jupiter for testing.
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
 }
 

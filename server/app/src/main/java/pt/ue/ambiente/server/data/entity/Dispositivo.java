@@ -1,10 +1,9 @@
 package pt.ue.ambiente.server.data.entity;
 
 import lombok.Data;
+import jakarta.persistence.*;
 
 import java.util.Collection;
-
-import jakarta.persistence.*;
 
 @Entity
 @Data
@@ -33,7 +32,11 @@ public class Dispositivo {
     protected Dispositivo() {
     }
 
-    public Dispositivo(String nome) {
+    public Dispositivo(String nome, Sala sala, Departamento departamento, Piso piso, Edificio edificio) {
         this.nome = nome;
+        this.sala = sala;
+        this.departamento = departamento;
+        this.piso = piso;
+        this.edificio = edificio;
     }
 }
