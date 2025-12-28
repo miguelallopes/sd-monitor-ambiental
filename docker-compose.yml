@@ -1,25 +1,59 @@
 services:
+  server:
+    restart: unless-stopped
+    build:
+      context: server
+      dockerfile: Dockerfile
+    ports:
+      - 50051:50051
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/sd-monitor-ambiental
+      - SPRING_DATASOURCE_USERNAME=sd-monitor-ambiental
+      - SPRING_DATASOURCE_PASSWORD=sd-monitor-ambiental
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - sd-monitor-ambiental-external
+      - sd-monitor-ambiental-internal
+
   messagebroker:
+    restart: always
+    ports:
+      - 1883:1883
     build:
       context: messagebroker
       dockerfile: Dockerfile
     env_file:
       - .env
     volumes:
-      - messagebroker:/mosquitto/data/
+      - sd-monitor-ambiental-messagebroker:/mosquitto/data/
+    networks:
+      - sd-monitor-ambiental-external
+      - sd-monitor-ambiental-internal
 
   database:
+    restart: always
     build:
       context: database
       dockerfile: Dockerfile
-    ports:
-      - 5432:5432
     env_file:
       - .env
       - db.env
     volumes:
-      - database:/var/lib/postgresql
+      - sd-monitor-ambiental-database:/var/lib/postgresql
+    networks:
+      - sd-monitor-ambiental-internal
 
 volumes:
-  database:
-  messagebroker:
+  sd-monitor-ambiental-database:
+  sd-monitor-ambiental-messagebroker:
+
+
+networks:
+  sd-monitor-ambiental-internal:
+    internal: true
+  sd-monitor-ambiental-external:
+    driver: bridge
