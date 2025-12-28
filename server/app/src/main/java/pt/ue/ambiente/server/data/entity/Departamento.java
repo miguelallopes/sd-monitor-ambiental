@@ -8,11 +8,12 @@ import lombok.Data;
 @Entity
 @Data
 public class Departamento {
-    @Id @GeneratedValue private String nome;
+    @Id
+    private String nome;
 
     @OneToMany(mappedBy = "id")
     private Collection<Dispositivo> dispositivos;
-    
+
     protected Departamento() {
     }
 
