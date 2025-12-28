@@ -3,3 +3,35 @@
 
 # Ignore Gradle build output directory
 build
+
+# Compiled class files
+*.class
+
+# Eclipse IDE
+bin/
+.settings/
+.project
+.classpath
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# VS Code
+.vscode/
+
+# Package files
+*.jar
+*.war
+*.ear
+*.nar
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
