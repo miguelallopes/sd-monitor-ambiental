@@ -12,12 +12,13 @@ public class Metricas {
     @Id
     @GeneratedValue
     private Long id;
-    
+
     @ManyToOne(optional = false)
     private Dispositivo dispositivo;
 
     private LocalDateTime tempoRegisto = LocalDateTime.now();
 
+    @Enumerated(EnumType.STRING)
     private Protocolo protocolo;
     private float temperatura;
     private int humidade;

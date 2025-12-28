@@ -4,6 +4,7 @@ import java.util.Collection;
 import jakarta.persistence.*;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -11,7 +12,8 @@ public class Sala {
     @Id
     private String sala;
 
-    @OneToMany(mappedBy = "id")
+    @OneToMany(mappedBy = "sala")
+    @ToString.Exclude
     private Collection<Dispositivo> dispositivos;
 
     protected Sala() {
