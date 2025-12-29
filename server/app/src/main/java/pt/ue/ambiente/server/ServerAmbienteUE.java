@@ -3,9 +3,9 @@
  */
 package pt.ue.ambiente.server;
 
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import java.io.IOException;
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,33 +13,19 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import pt.ue.ambiente.server.data.ServerAmbienteDataUE;
-import pt.ue.ambiente.server.data.entity.Departamento;
-import pt.ue.ambiente.server.data.entity.Dispositivo;
-import pt.ue.ambiente.server.data.entity.Edificio;
-import pt.ue.ambiente.server.data.entity.Piso;
-import pt.ue.ambiente.server.data.entity.Sala;
 import pt.ue.ambiente.server.grpc.ServerAmbienteGrpcUE;
-
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "pt.ue.ambiente.server.data.repository")
-
 public class ServerAmbienteUE implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(ServerAmbienteUE.class);
 
     private Server grpcServer;
 
-    @Autowired
-    private ServerAmbienteGrpcUE grpcServerAmbienteUE;
+    @Autowired private ServerAmbienteGrpcUE grpcServerAmbienteUE;
 
-
-    @Autowired
-    private ServerAmbienteDataUE repositories;
-
+    @Autowired private ServerAmbienteDataUE repositories;
 
     public static void main(String[] args) {
         SpringApplication.run(ServerAmbienteUE.class, args);
@@ -50,28 +36,30 @@ public class ServerAmbienteUE implements CommandLineRunner {
         try {
             this.startGrpcServer();
             // Keep the application running to listen for gRPC
-            this.blockUntilShutdown(); 
+            this.blockUntilShutdown();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
+
     public void startGrpcServer() throws IOException {
-        grpcServer = ServerBuilder.forPort(50051)
-                .addService(grpcServerAmbienteUE)
-                .build()
-                .start();
+        grpcServer = ServerBuilder.forPort(50051).addService(grpcServerAmbienteUE).build().start();
 
         log.info("===========================================");
         log.info("Servidor gRPC iniciado na porta 50051");
         log.info("===========================================");
-        
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("*** Shutting down gRPC server since JVM is shutting down");
-            if (grpcServer != null) {
-                grpcServer.shutdown();
-            }
-            log.info("*** Server shut down");
-        }));
+
+        Runtime.getRuntime()
+                .addShutdownHook(
+                        new Thread(
+                                () -> {
+                                    log.info(
+                                            "*** Shutting down gRPC server since JVM is shutting down");
+                                    if (grpcServer != null) {
+                                        grpcServer.shutdown();
+                                    }
+                                    log.info("*** Server shut down");
+                                }));
     }
 
     private void blockUntilShutdown() throws InterruptedException {
@@ -84,7 +72,7 @@ public class ServerAmbienteUE implements CommandLineRunner {
     private static final int PORT = 50051;
     private Server server;
 
-  
+
     private void start() throws IOException {
         server = ServerBuilder.forPort(PORT)
                 .addService(new ServerAmbienteGrpcUE())
@@ -113,14 +101,14 @@ public class ServerAmbienteUE implements CommandLineRunner {
         }
     }
 
- 
+
     private void blockUntilShutdown() throws InterruptedException {
         if (server != null) {
             server.awaitTermination();
         }
     }
 
- 
+
     public static void main(String[] args) {
         final ServerAmbienteUE server = new ServerAmbienteUE();
 

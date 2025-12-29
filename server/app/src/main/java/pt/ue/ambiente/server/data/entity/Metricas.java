@@ -1,17 +1,15 @@
 package pt.ue.ambiente.server.data.entity;
 
-import pt.ue.ambiente.server.data.enumeration.*;
+import jakarta.persistence.*;
 import java.time.*;
 import lombok.Data;
-import jakarta.persistence.*;
+import pt.ue.ambiente.server.data.enumeration.*;
 
 @Entity
 @Data
 public class Metricas {
 
-    @Id
-    @GeneratedValue
-    private Long id;
+    @Id @GeneratedValue private Long id;
 
     @ManyToOne(optional = false)
     private Dispositivo dispositivo;
@@ -20,6 +18,7 @@ public class Metricas {
 
     @Enumerated(EnumType.STRING)
     private Protocolo protocolo;
+
     private float temperatura;
     private int humidade;
 
@@ -35,9 +34,7 @@ public class Metricas {
     @ManyToOne(optional = false)
     private Edificio edificio;
 
-    protected Metricas() {
-
-    }
+    protected Metricas() {}
 
     public Metricas(Dispositivo dispositivo, Protocolo protocolo, float temperatura, int humidade) {
         this.dispositivo = dispositivo;
@@ -55,5 +52,4 @@ public class Metricas {
         this.temperatura = temperatura;
         this.humidade = humidade;
     }
-
 }

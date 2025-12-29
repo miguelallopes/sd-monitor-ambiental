@@ -1,6 +1,3 @@
 package pt.ue.ambiente.server.config;
 
-public class ServerAmbientePropertiesUE {
-
-    
-}
+public class ServerAmbientePropertiesUE {}

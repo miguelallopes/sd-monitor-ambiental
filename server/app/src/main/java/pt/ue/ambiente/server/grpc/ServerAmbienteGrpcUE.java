@@ -1,47 +1,32 @@
 package pt.ue.ambiente.server.grpc;
 
-import pt.ue.ambiente.server.grpc.AmbienteProto.AmbienteServiceReply;
-import pt.ue.ambiente.server.grpc.AmbienteProto.AmbienteServiceRequest;
-import pt.ue.ambiente.server.data.ServerAmbienteDataUE;
-import pt.ue.ambiente.server.data.entity.Departamento;
-import pt.ue.ambiente.server.data.entity.Dispositivo;
-import pt.ue.ambiente.server.data.entity.Edificio;
-import pt.ue.ambiente.server.data.entity.Metricas;
-import pt.ue.ambiente.server.data.entity.Piso;
-import pt.ue.ambiente.server.data.entity.Sala;
-import pt.ue.ambiente.server.data.enumeration.Protocolo;
-import pt.ue.ambiente.server.data.repository.DepartamentoRepository;
-import pt.ue.ambiente.server.data.repository.DispositivoRepository;
-import pt.ue.ambiente.server.data.repository.EdificioRepository;
-import pt.ue.ambiente.server.data.repository.MetricasRepository;
-import pt.ue.ambiente.server.data.repository.PisoRepository;
-import pt.ue.ambiente.server.data.repository.SalaRepository;
-import pt.ue.ambiente.server.grpc.AmbienteProto.AmbienteServiceClockStatus;
-
+import io.grpc.stub.StreamObserver;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
-import java.util.zip.DataFormatException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import io.grpc.stub.StreamObserver;
-import jakarta.persistence.EntityNotFoundException;
+import pt.ue.ambiente.server.data.ServerAmbienteDataUE;
+import pt.ue.ambiente.server.data.entity.Dispositivo;
+import pt.ue.ambiente.server.data.entity.Metricas;
+import pt.ue.ambiente.server.data.enumeration.Protocolo;
+import pt.ue.ambiente.server.grpc.AmbienteProto.AmbienteServiceClockStatus;
+import pt.ue.ambiente.server.grpc.AmbienteProto.AmbienteServiceReply;
+import pt.ue.ambiente.server.grpc.AmbienteProto.AmbienteServiceRequest;
 
 @Service
 public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImplBase {
 
-    @Autowired
-    private final ServerAmbienteDataUE repositories;
+    @Autowired private final ServerAmbienteDataUE repositories;
 
     public ServerAmbienteGrpcUE(ServerAmbienteDataUE repositories) {
         this.repositories = repositories;
     }
 
     @Override
-    public void submeterDadosAmbiente(AmbienteServiceRequest request,
-            StreamObserver<AmbienteServiceReply> responseObserver) {
+    public void submeterDadosAmbiente(
+            AmbienteServiceRequest request, StreamObserver<AmbienteServiceReply> responseObserver) {
         responseObserver.onNext(executarSubmeterDadosAmbiente(request));
         responseObserver.onCompleted();
     }
@@ -64,7 +49,8 @@ public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImp
         try {
             timestamp = OffsetDateTime.parse(request.getTimestamp());
 
-            long diferenca = java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
+            long diferenca =
+                    java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
 
             if (diferenca > 15) {
                 // Relogio atrasado
@@ -97,11 +83,13 @@ public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImp
                 status_temperatura = true;
             }
 
-            status = status_temperatura && status_humidade
-                    && (status_clock.equals(AmbienteServiceClockStatus.SUBMISSION_SUCCESS));
+            status =
+                    status_temperatura
+                            && status_humidade
+                            && (status_clock.equals(AmbienteServiceClockStatus.SUBMISSION_SUCCESS));
 
-            repositories.metricasRepository.save(new Metricas(device.get(), Protocolo.gRPC, temperatura, humidade));
-
+            repositories.metricasRepository.save(
+                    new Metricas(device.get(), Protocolo.gRPC, temperatura, humidade));
         }
 
         return AmbienteServiceReply.newBuilder()

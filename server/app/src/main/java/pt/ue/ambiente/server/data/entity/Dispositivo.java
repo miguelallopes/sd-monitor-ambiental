@@ -1,16 +1,13 @@
 package pt.ue.ambiente.server.data.entity;
 
-import lombok.Data;
 import jakarta.persistence.*;
-
 import java.util.Collection;
+import lombok.Data;
 
 @Entity
 @Data
 public class Dispositivo {
-    @Id
-    @GeneratedValue
-    private Long id;
+    @Id @GeneratedValue private Long id;
 
     private String nome;
 
@@ -29,10 +26,10 @@ public class Dispositivo {
     @OneToMany(mappedBy = "dispositivo")
     private Collection<Metricas> metricas;
 
-    protected Dispositivo() {
-    }
+    protected Dispositivo() {}
 
-    public Dispositivo(String nome, Sala sala, Departamento departamento, Piso piso, Edificio edificio) {
+    public Dispositivo(
+            String nome, Sala sala, Departamento departamento, Piso piso, Edificio edificio) {
         this.nome = nome;
         this.sala = sala;
         this.departamento = departamento;

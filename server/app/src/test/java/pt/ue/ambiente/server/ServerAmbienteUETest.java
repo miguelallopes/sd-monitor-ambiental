@@ -3,13 +3,13 @@
  */
 package pt.ue.ambiente.server;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class ServerAmbienteUETest {
     @Test
     void testTrueIsTrue() {
         assertTrue(true);
     }
-    
 }

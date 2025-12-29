@@ -1,7 +1,6 @@
 package pt.ue.ambiente.server.data;
 
 import org.springframework.stereotype.Service;
-
 import pt.ue.ambiente.server.data.repository.DepartamentoRepository;
 import pt.ue.ambiente.server.data.repository.DispositivoRepository;
 import pt.ue.ambiente.server.data.repository.EdificioRepository;
