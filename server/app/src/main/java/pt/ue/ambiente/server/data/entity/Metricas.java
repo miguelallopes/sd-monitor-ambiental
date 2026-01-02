@@ -16,6 +16,8 @@ public class Metricas {
 
     private LocalDateTime tempoRegisto = LocalDateTime.now();
 
+    private LocalDateTime tempoDispositivo;
+
     @Enumerated(EnumType.STRING)
     private Protocolo protocolo;
 
@@ -36,7 +38,7 @@ public class Metricas {
 
     protected Metricas() {}
 
-    public Metricas(Dispositivo dispositivo, Protocolo protocolo, float temperatura, int humidade) {
+    public Metricas(Dispositivo dispositivo, Protocolo protocolo, float temperatura, int humidade, LocalDateTime tempoDispositivo) {
         this.dispositivo = dispositivo;
         this.tempoRegisto = LocalDateTime.now();
 
@@ -51,5 +53,6 @@ public class Metricas {
         this.protocolo = protocolo;
         this.temperatura = temperatura;
         this.humidade = humidade;
+        this.tempoDispositivo = tempoDispositivo;
     }
 }
