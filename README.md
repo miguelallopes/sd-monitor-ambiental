@@ -13,11 +13,11 @@ docker compose up
 ### Cliente MQTT
 
 ```sh
-cd client-grpc && gradle run
+gradle -p client-mqtt run
 ```
 
 ### Cliente gRPC
 
 ```sh
-cd client-grpc && gradle run
+gradle -p client-grpc run
 ```
