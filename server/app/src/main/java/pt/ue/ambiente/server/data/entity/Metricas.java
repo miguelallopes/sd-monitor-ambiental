@@ -6,15 +6,22 @@ import lombok.Data;
 import pt.ue.ambiente.server.data.enumeration.*;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "dispositivo_id", "tempoDispositivo", "protocolo" })
+})
 @Data
 public class Metricas {
 
-    @Id @GeneratedValue private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
     @ManyToOne(optional = false)
     private Dispositivo dispositivo;
 
     private LocalDateTime tempoRegisto = LocalDateTime.now();
+
+    private LocalDateTime tempoDispositivo;
 
     @Enumerated(EnumType.STRING)
     private Protocolo protocolo;
@@ -34,9 +41,15 @@ public class Metricas {
     @ManyToOne(optional = false)
     private Edificio edificio;
 
-    protected Metricas() {}
+    protected Metricas() {
+    }
 
-    public Metricas(Dispositivo dispositivo, Protocolo protocolo, float temperatura, int humidade) {
+    public Metricas(
+            Dispositivo dispositivo,
+            Protocolo protocolo,
+            float temperatura,
+            int humidade,
+            LocalDateTime tempoDispositivo) {
         this.dispositivo = dispositivo;
         this.tempoRegisto = LocalDateTime.now();
 
@@ -51,5 +64,6 @@ public class Metricas {
         this.protocolo = protocolo;
         this.temperatura = temperatura;
         this.humidade = humidade;
+        this.tempoDispositivo = tempoDispositivo;
     }
 }

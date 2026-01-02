@@ -14,16 +14,24 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import pt.ue.ambiente.server.data.ServerAmbienteDataUE;
+import pt.ue.ambiente.server.data.entity.Departamento;
+import pt.ue.ambiente.server.data.entity.Dispositivo;
+import pt.ue.ambiente.server.data.entity.Edificio;
+import pt.ue.ambiente.server.data.entity.Piso;
+import pt.ue.ambiente.server.data.entity.Sala;
 import pt.ue.ambiente.server.grpc.ServerAmbienteGrpcUE;
+import pt.ue.ambiente.server.mqtt.ServerAmbienteMqttUE;
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "pt.ue.ambiente.server.data.repository")
 public class ServerAmbienteUE implements CommandLineRunner {
-    private static final Logger log = LoggerFactory.getLogger(ServerAmbienteUE.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerAmbienteUE.class);
 
     private Server grpcServer;
 
     @Autowired private ServerAmbienteGrpcUE grpcServerAmbienteUE;
+
+    @Autowired private ServerAmbienteMqttUE mqttServerAmbienteUE;
 
     @Autowired private ServerAmbienteDataUE repositories;
 
@@ -33,7 +41,24 @@ public class ServerAmbienteUE implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // TODO: Remover isto depois (é só para termos um dispositivos registado para testes)
+        Sala sala = new Sala("Sala1");
+        Departamento departamento = new Departamento("Departamento1");
+        Piso piso = new Piso(1);
+        Edificio edificio = new Edificio("Edificio1");
+
+        repositories.salaRepository.save(sala);
+        repositories.departamentoRepository.save(departamento);
+        repositories.pisoRepository.save(piso);
+        repositories.edificioRepository.save(edificio);
+
+        Dispositivo dispositivo = new Dispositivo("Device1", sala, departamento, piso, edificio);
+        repositories.dispositivoRepository.save(dispositivo);
+
         try {
+            // Start MQTT service
+            mqttServerAmbienteUE.init();
+            // Start gRPC server
             this.startGrpcServer();
             // Keep the application running to listen for gRPC
             this.blockUntilShutdown();
@@ -45,20 +70,20 @@ public class ServerAmbienteUE implements CommandLineRunner {
     public void startGrpcServer() throws IOException {
         grpcServer = ServerBuilder.forPort(50051).addService(grpcServerAmbienteUE).build().start();
 
-        log.info("===========================================");
-        log.info("Servidor gRPC iniciado na porta 50051");
-        log.info("===========================================");
+        logger.info("===========================================");
+        logger.info("Servidor gRPC iniciado na porta 50051");
+        logger.info("===========================================");
 
         Runtime.getRuntime()
                 .addShutdownHook(
                         new Thread(
                                 () -> {
-                                    log.info(
+                                    logger.info(
                                             "*** Shutting down gRPC server since JVM is shutting down");
                                     if (grpcServer != null) {
                                         grpcServer.shutdown();
                                     }
-                                    log.info("*** Server shut down");
+                                    logger.info("*** Server shut down");
                                 }));
     }
 
@@ -69,62 +94,62 @@ public class ServerAmbienteUE implements CommandLineRunner {
     }
 
     /*
-    private static final int PORT = 50051;
-    private Server server;
-
-
-    private void start() throws IOException {
-        server = ServerBuilder.forPort(PORT)
-                .addService(new ServerAmbienteGrpcUE())
-                .build()
-                .start();
-
-        System.out.println("===========================================");
-        System.out.println("Servidor gRPC iniciado na porta " + PORT);
-        System.out.println("===========================================");
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.err.println("*** A desligar servidor gRPC devido a shutdown da JVM");
-            try {
-                ServerAmbienteUE.this.stop();
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-            }
-            System.err.println("*** Servidor desligado");
-        }));
-    }
-
-
-    private void stop() throws InterruptedException {
-        if (server != null) {
-            server.shutdown().awaitTermination();
-        }
-    }
-
-
-    private void blockUntilShutdown() throws InterruptedException {
-        if (server != null) {
-            server.awaitTermination();
-        }
-    }
-
-
-    public static void main(String[] args) {
-        final ServerAmbienteUE server = new ServerAmbienteUE();
-
-        try {
-            server.start();
-
-            server.blockUntilShutdown();
-
-        } catch (IOException e) {
-            System.err.println("Erro ao iniciar o servidor: " + e.getMessage());
-            e.printStackTrace();
-
-        } catch (InterruptedException e) {
-            System.err.println("Servidor interrompido: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    */
+     * private static final int PORT = 50051;
+     * private Server server;
+     *
+     *
+     * private void start() throws IOException {
+     * server = ServerBuilder.forPort(PORT)
+     * .addService(new ServerAmbienteGrpcUE())
+     * .build()
+     * .start();
+     *
+     * System.out.println("===========================================");
+     * System.out.println("Servidor gRPC iniciado na porta " + PORT);
+     * System.out.println("===========================================");
+     *
+     * Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+     * System.err.println("*** A desligar servidor gRPC devido a shutdown da JVM");
+     * try {
+     * ServerAmbienteUE.this.stop();
+     * } catch (InterruptedException e) {
+     * e.printStackTrace(System.err);
+     * }
+     * System.err.println("*** Servidor desligado");
+     * }));
+     * }
+     *
+     *
+     * private void stop() throws InterruptedException {
+     * if (server != null) {
+     * server.shutdown().awaitTermination();
+     * }
+     * }
+     *
+     *
+     * private void blockUntilShutdown() throws InterruptedException {
+     * if (server != null) {
+     * server.awaitTermination();
+     * }
+     * }
+     *
+     *
+     * public static void main(String[] args) {
+     * final ServerAmbienteUE server = new ServerAmbienteUE();
+     *
+     * try {
+     * server.start();
+     *
+     * server.blockUntilShutdown();
+     *
+     * } catch (IOException e) {
+     * System.err.println("Erro ao iniciar o servidor: " + e.getMessage());
+     * e.printStackTrace();
+     *
+     * } catch (InterruptedException e) {
+     * System.err.println("Servidor interrompido: " + e.getMessage());
+     * e.printStackTrace();
+     * }
+     * }
+     */
 }

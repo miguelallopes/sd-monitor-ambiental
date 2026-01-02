@@ -1,8 +1,23 @@
 # Sistema de Monitorização Ambiental para a Universidade de Évora
 
-# AmbienteUE
+## Como compilar/Executar
 
-58122
-58540
+### Servidor
 
-pt.ue.ambiente.server
+```sh
+docker compose down
+docker compose build
+docker compose up
+```
+
+### Cliente MQTT
+
+```sh
+gradle -p client-mqtt run
+```
+
+### Cliente gRPC
+
+```sh
+gradle -p client-grpc run
+```
