@@ -10,7 +10,7 @@ import pt.ue.ambiente.server.data.ServerAmbienteDataUE;
 public class ServerAmbienteRestUE {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerAmbienteRestUE.class);
-    
+
     @Autowired private final ServerAmbienteDataUE repositories;
 
     public ServerAmbienteRestUE(ServerAmbienteDataUE repositories) {

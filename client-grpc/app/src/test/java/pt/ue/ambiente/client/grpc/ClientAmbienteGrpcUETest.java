@@ -3,8 +3,9 @@
  */
 package pt.ue.ambiente.client.grpc;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class ClientAmbienteGrpcUETest {
 
@@ -12,5 +13,4 @@ class ClientAmbienteGrpcUETest {
     void testTrueIsTrue() {
         assertTrue(true);
     }
-    
 }

@@ -38,7 +38,12 @@ public class Metricas {
 
     protected Metricas() {}
 
-    public Metricas(Dispositivo dispositivo, Protocolo protocolo, float temperatura, int humidade, LocalDateTime tempoDispositivo) {
+    public Metricas(
+            Dispositivo dispositivo,
+            Protocolo protocolo,
+            float temperatura,
+            int humidade,
+            LocalDateTime tempoDispositivo) {
         this.dispositivo = dispositivo;
         this.tempoRegisto = LocalDateTime.now();
 
