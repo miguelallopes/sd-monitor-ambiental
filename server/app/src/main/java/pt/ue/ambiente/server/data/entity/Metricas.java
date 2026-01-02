@@ -6,10 +6,15 @@ import lombok.Data;
 import pt.ue.ambiente.server.data.enumeration.*;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "dispositivo_id", "tempoDispositivo", "protocolo" })
+})
 @Data
 public class Metricas {
 
-    @Id @GeneratedValue private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
     @ManyToOne(optional = false)
     private Dispositivo dispositivo;
@@ -36,7 +41,8 @@ public class Metricas {
     @ManyToOne(optional = false)
     private Edificio edificio;
 
-    protected Metricas() {}
+    protected Metricas() {
+    }
 
     public Metricas(
             Dispositivo dispositivo,
