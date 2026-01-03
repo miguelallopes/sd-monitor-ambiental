@@ -3,18 +3,31 @@ FROM eclipse-temurin:25-jdk AS build
 
 WORKDIR /app
 
-# Copy Gradle wrapper and build files
+# --- Dependency Caching Layer ---
+
+# 1. Copy Gradle wrapper and project settings
 COPY gradlew .
 COPY gradle gradle
-COPY build.gradle.kts* .
 COPY settings.gradle.kts .
 COPY gradle.properties .
-COPY app app
+COPY build.gradle.kts* .
 
-# Make gradlew executable
-RUN chmod +x gradlew
+# 2. Copy only the module-specific build file
+# (This allows Gradle to resolve dependencies for 'app' without needing the source code yet)
+COPY app/build.gradle.kts app/
 
-# Build the application (skip tests for faster build)
+# 3. Make gradlew executable and download dependencies
+# This command runs ONLY if dependency files change. Otherwise, it uses the Docker cache.
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
+
+# --- Source Build Layer ---
+
+# 4. Copy the actual source code
+# If you change code in /app/src, only the steps after this line are re-run.
+COPY app/src app/src
+
+
+# 5. Build the application
 RUN ./gradlew bootJar --no-daemon
 
 # Stage 2: Run the application
