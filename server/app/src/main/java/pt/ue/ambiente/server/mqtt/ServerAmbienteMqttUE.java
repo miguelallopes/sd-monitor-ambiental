@@ -12,6 +12,7 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import pt.ue.ambiente.server.data.ServerAmbienteDataUE;
 import pt.ue.ambiente.server.data.entity.Dispositivo;
@@ -190,17 +191,23 @@ public class ServerAmbienteMqttUE {
         // Registar métricas na base de dados
         try {
             repositories.metricasRepository.save(
-                new Metricas(
-                        device.get(),
-                        Protocolo.MQTT,
-                        temperatura,
-                        humidade,
-                        timestamp.toLocalDateTime()));
-        } catch (Exception e) {
+                    new Metricas(
+                            device.get(),
+                            Protocolo.MQTT,
+                            temperatura,
+                            humidade,
+                            timestamp.toLocalDateTime()));
+        } 
+        catch (DataIntegrityViolationException _) {
             logger.debug("[MQTT] Descartando metricas duplicadas do dispositivo " + deviceId);
             return;
         }
         
+        catch (Exception e) {
+
+            logger.error("[MQTT] Métricas não registadas pois ocorreu um erro: " + e.getMessage());
+            return;
+        }
 
         // Verificar estado dos campos enviados
         if (humidade >= 0 && humidade <= 100) {
@@ -213,8 +220,6 @@ public class ServerAmbienteMqttUE {
                 && status_humidade
                 && (status_clock.equals(AmbienteClockStatus.SUBMISSION_SUCCESS));
 
-        
-
         logger.info("[MQTT] Métricas registadas com sucesso:");
         logger.info("-> Dispositivo: " + deviceId);
         logger.info("-> Temperatura: " + temperatura);
@@ -226,7 +231,7 @@ public class ServerAmbienteMqttUE {
         logger.info("-> Estado Humidade (sucesso): " + status_humidade);
         logger.info("-> Estado Clock: " + status_clock);
 
-        // TODO: isto para baixo tem de se tirar 
+        // TODO: isto para baixo tem de se tirar
 
         // Montar reply
         AmbienteMessageResponse reply = new AmbienteMessageResponse(
