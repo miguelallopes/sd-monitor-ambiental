@@ -21,6 +21,7 @@ import pt.ue.ambiente.server.data.entity.Piso;
 import pt.ue.ambiente.server.data.entity.Sala;
 import pt.ue.ambiente.server.grpc.ServerAmbienteGrpcUE;
 import pt.ue.ambiente.server.mqtt.ServerAmbienteMqttUE;
+import pt.ue.ambiente.server.rest.ServerAmbienteRestMetricasUE;
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "pt.ue.ambiente.server.data.repository")
@@ -33,6 +34,8 @@ public class ServerAmbienteUE implements CommandLineRunner {
 
     @Autowired private ServerAmbienteMqttUE mqttServerAmbienteUE;
 
+    @Autowired private ServerAmbienteRestMetricasUE restMetricasServerAmbienteUE;
+
     @Autowired private ServerAmbienteDataUE repositories;
 
     public static void main(String[] args) {
@@ -41,7 +44,8 @@ public class ServerAmbienteUE implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // TODO: Remover isto depois (é só para termos um dispositivos registado para testes)
+        // TODO: Remover isto depois (é só para termos um dispositivos registado para
+        // testes)
         Sala sala = new Sala("Sala1");
         Departamento departamento = new Departamento("Departamento1");
         Piso piso = new Piso(1);

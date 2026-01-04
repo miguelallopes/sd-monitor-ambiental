@@ -46,10 +46,11 @@ public class ServerAmbienteMqttUE {
     @PostConstruct
     public void init() {
         try {
-            client = new MqttClient(
-                    BROKER,
-                    "sd-monitor-ambiental-server-"
-                            + java.util.UUID.randomUUID().toString());
+            client =
+                    new MqttClient(
+                            BROKER,
+                            "sd-monitor-ambiental-server-"
+                                    + java.util.UUID.randomUUID().toString());
 
             executor = Executors.newCachedThreadPool();
 
@@ -57,7 +58,8 @@ public class ServerAmbienteMqttUE {
                     new org.eclipse.paho.mqttv5.client.MqttCallback() {
                         @Override
                         public void disconnected(
-                                org.eclipse.paho.mqttv5.client.MqttDisconnectResponse disconnectResponse) {
+                                org.eclipse.paho.mqttv5.client.MqttDisconnectResponse
+                                        disconnectResponse) {
                             System.out.println(
                                     "MQTT disconnected: " + disconnectResponse.getReasonString());
                         }
@@ -84,8 +86,7 @@ public class ServerAmbienteMqttUE {
 
                         @Override
                         public void deliveryComplete(
-                                org.eclipse.paho.mqttv5.client.IMqttToken token) {
-                        }
+                                org.eclipse.paho.mqttv5.client.IMqttToken token) {}
 
                         @Override
                         public void connectComplete(boolean reconnect, String serverURI) {
@@ -99,8 +100,7 @@ public class ServerAmbienteMqttUE {
                         @Override
                         public void authPacketArrived(
                                 int reasonCode,
-                                org.eclipse.paho.mqttv5.common.packet.MqttProperties properties) {
-                        }
+                                org.eclipse.paho.mqttv5.common.packet.MqttProperties properties) {}
                     });
 
             options = new MqttConnectionOptions();
@@ -176,7 +176,8 @@ public class ServerAmbienteMqttUE {
         try {
             timestamp = OffsetDateTime.parse(timestampStr);
 
-            long diferenca = java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
+            long diferenca =
+                    java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
             if (diferenca > 15) {
                 status_clock = AmbienteClockStatus.SUBMISSION_CLOCK_EARLY;
             } else if (diferenca < -15) {
@@ -197,13 +198,10 @@ public class ServerAmbienteMqttUE {
                             temperatura,
                             humidade,
                             timestamp.toLocalDateTime()));
-        } 
-        catch (DataIntegrityViolationException _) {
+        } catch (DataIntegrityViolationException _) {
             logger.debug("[MQTT] Descartando metricas duplicadas do dispositivo " + deviceId);
             return;
-        }
-        
-        catch (Exception e) {
+        } catch (Exception e) {
 
             logger.error("[MQTT] Métricas não registadas pois ocorreu um erro: " + e.getMessage());
             return;
@@ -216,9 +214,10 @@ public class ServerAmbienteMqttUE {
         if (temperatura >= -50 && temperatura <= 100) {
             status_temperatura = true;
         }
-        status = status_temperatura
-                && status_humidade
-                && (status_clock.equals(AmbienteClockStatus.SUBMISSION_SUCCESS));
+        status =
+                status_temperatura
+                        && status_humidade
+                        && (status_clock.equals(AmbienteClockStatus.SUBMISSION_SUCCESS));
 
         logger.info("[MQTT] Métricas registadas com sucesso:");
         logger.info("-> Dispositivo: " + deviceId);
@@ -234,8 +233,8 @@ public class ServerAmbienteMqttUE {
         // TODO: isto para baixo tem de se tirar
 
         // Montar reply
-        AmbienteMessageResponse reply = new AmbienteMessageResponse(
-                status, status_clock, status_temperatura, status_humidade);
-
+        AmbienteMessageResponse reply =
+                new AmbienteMessageResponse(
+                        status, status_clock, status_temperatura, status_humidade);
     }
 }

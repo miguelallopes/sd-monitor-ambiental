@@ -56,6 +56,7 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.data:spring-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     
     // GRPC
     runtimeOnly("io.grpc:grpc-netty-shaded:1.78.0")
