@@ -3,6 +3,7 @@ package pt.ue.ambiente.server.rest;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import pt.ue.ambiente.server.data.ServerAmbienteDataUE;
 import pt.ue.ambiente.server.data.entity.Dispositivo;
 import pt.ue.ambiente.server.data.entity.Metricas;
@@ -23,8 +25,7 @@ import pt.ue.ambiente.server.message.AmbienteMessageResponse;
 @RequestMapping("/api/metrics")
 public class ServerAmbienteRestMetricasUE {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(ServerAmbienteRestMetricasUE.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerAmbienteRestMetricasUE.class);
 
     private final ServerAmbienteDataUE repositories;
 
@@ -58,7 +59,19 @@ public class ServerAmbienteRestMetricasUE {
                         "[REST] Métricas não registadas pois o dispositivo "
                                 + deviceId
                                 + " não existe!");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(
+                                new AmbienteMessageResponse(
+                                        false,
+                                        AmbienteClockStatus.SUBMISSION_INVALID,
+                                        false,
+                                        false));
+            } else if (!device.get().isAtivo()) {
+                logger.error(
+                        "[MQTT] Métricas não registadas pois o dispositivo "
+                                + deviceId
+                                + " está desativo!");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(
                                 new AmbienteMessageResponse(
                                         false,
@@ -83,8 +96,7 @@ public class ServerAmbienteRestMetricasUE {
         // Validar timestamp emitida pelo dispositivo
         try {
             timestamp = OffsetDateTime.parse(timestampStr);
-            long diferenca =
-                    java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
+            long diferenca = java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
             if (diferenca > 15) {
                 status_clock = AmbienteClockStatus.SUBMISSION_CLOCK_EARLY;
             } else if (diferenca < -15) {
@@ -122,10 +134,9 @@ public class ServerAmbienteRestMetricasUE {
         if (temperatura >= -50 && temperatura <= 100) {
             status_temperatura = true;
         }
-        status =
-                status_temperatura
-                        && status_humidade
-                        && (status_clock.equals(AmbienteClockStatus.SUBMISSION_SUCCESS));
+        status = status_temperatura
+                && status_humidade
+                && (status_clock.equals(AmbienteClockStatus.SUBMISSION_SUCCESS));
 
         logger.info("[REST] Métricas registadas com sucesso:");
         logger.info("-> Dispositivo: " + deviceId);
@@ -137,9 +148,8 @@ public class ServerAmbienteRestMetricasUE {
         logger.info("-> Estado Humidade (sucesso): " + status_humidade);
         logger.info("-> Estado Clock: " + status_clock);
 
-        AmbienteMessageResponse reply =
-                new AmbienteMessageResponse(
-                        status, status_clock, status_temperatura, status_humidade);
+        AmbienteMessageResponse reply = new AmbienteMessageResponse(
+                status, status_clock, status_temperatura, status_humidade);
         return ResponseEntity.ok(reply);
     }
 }

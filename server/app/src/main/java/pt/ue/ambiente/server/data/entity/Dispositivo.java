@@ -1,13 +1,20 @@
 package pt.ue.ambiente.server.data.entity;
 
-import jakarta.persistence.*;
 import java.util.Collection;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 @Entity
 @Data
 public class Dispositivo {
-    @Id @GeneratedValue private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
     private String nome;
 
@@ -16,6 +23,8 @@ public class Dispositivo {
 
     @ManyToOne(optional = false)
     private Departamento departamento;
+
+    private boolean ativo = false;
 
     @ManyToOne(optional = false)
     private Piso piso;
@@ -26,7 +35,8 @@ public class Dispositivo {
     @OneToMany(mappedBy = "dispositivo")
     private Collection<Metricas> metricas;
 
-    protected Dispositivo() {}
+    protected Dispositivo() {
+    }
 
     public Dispositivo(
             String nome, Sala sala, Departamento departamento, Piso piso, Edificio edificio) {

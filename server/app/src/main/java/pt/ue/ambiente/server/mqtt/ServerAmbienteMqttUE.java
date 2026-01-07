@@ -1,12 +1,11 @@
 package pt.ue.ambiente.server.mqtt;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
@@ -14,11 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import pt.ue.ambiente.server.data.ServerAmbienteDataUE;
 import pt.ue.ambiente.server.data.entity.Dispositivo;
 import pt.ue.ambiente.server.data.entity.Metricas;
 import pt.ue.ambiente.server.data.enumeration.Protocolo;
-import pt.ue.ambiente.server.grpc.AmbienteProto.*;
 import pt.ue.ambiente.server.message.AmbienteClockStatus;
 import pt.ue.ambiente.server.message.AmbienteMessagePublish;
 import pt.ue.ambiente.server.message.AmbienteMessageResponse;
@@ -46,11 +47,10 @@ public class ServerAmbienteMqttUE {
     @PostConstruct
     public void init() {
         try {
-            client =
-                    new MqttClient(
-                            BROKER,
-                            "sd-monitor-ambiental-server-"
-                                    + java.util.UUID.randomUUID().toString());
+            client = new MqttClient(
+                    BROKER,
+                    "sd-monitor-ambiental-server-"
+                            + java.util.UUID.randomUUID().toString());
 
             executor = Executors.newCachedThreadPool();
 
@@ -58,8 +58,7 @@ public class ServerAmbienteMqttUE {
                     new org.eclipse.paho.mqttv5.client.MqttCallback() {
                         @Override
                         public void disconnected(
-                                org.eclipse.paho.mqttv5.client.MqttDisconnectResponse
-                                        disconnectResponse) {
+                                org.eclipse.paho.mqttv5.client.MqttDisconnectResponse disconnectResponse) {
                             System.out.println(
                                     "MQTT disconnected: " + disconnectResponse.getReasonString());
                         }
@@ -86,7 +85,8 @@ public class ServerAmbienteMqttUE {
 
                         @Override
                         public void deliveryComplete(
-                                org.eclipse.paho.mqttv5.client.IMqttToken token) {}
+                                org.eclipse.paho.mqttv5.client.IMqttToken token) {
+                        }
 
                         @Override
                         public void connectComplete(boolean reconnect, String serverURI) {
@@ -100,7 +100,8 @@ public class ServerAmbienteMqttUE {
                         @Override
                         public void authPacketArrived(
                                 int reasonCode,
-                                org.eclipse.paho.mqttv5.common.packet.MqttProperties properties) {}
+                                org.eclipse.paho.mqttv5.common.packet.MqttProperties properties) {
+                        }
                     });
 
             options = new MqttConnectionOptions();
@@ -160,6 +161,12 @@ public class ServerAmbienteMqttUE {
                                 + deviceId
                                 + " não existe!");
                 return;
+            } else if (!device.get().isAtivo()) {
+                logger.error(
+                        "[MQTT] Métricas não registadas pois o dispositivo "
+                                + deviceId
+                                + " está desativo!");
+                return;
             }
 
             temperatura = request.getTemperatura();
@@ -176,8 +183,7 @@ public class ServerAmbienteMqttUE {
         try {
             timestamp = OffsetDateTime.parse(timestampStr);
 
-            long diferenca =
-                    java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
+            long diferenca = java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
             if (diferenca > 15) {
                 status_clock = AmbienteClockStatus.SUBMISSION_CLOCK_EARLY;
             } else if (diferenca < -15) {
@@ -214,10 +220,9 @@ public class ServerAmbienteMqttUE {
         if (temperatura >= -50 && temperatura <= 100) {
             status_temperatura = true;
         }
-        status =
-                status_temperatura
-                        && status_humidade
-                        && (status_clock.equals(AmbienteClockStatus.SUBMISSION_SUCCESS));
+        status = status_temperatura
+                && status_humidade
+                && (status_clock.equals(AmbienteClockStatus.SUBMISSION_SUCCESS));
 
         logger.info("[MQTT] Métricas registadas com sucesso:");
         logger.info("-> Dispositivo: " + deviceId);
@@ -233,8 +238,7 @@ public class ServerAmbienteMqttUE {
         // TODO: isto para baixo tem de se tirar
 
         // Montar reply
-        AmbienteMessageResponse reply =
-                new AmbienteMessageResponse(
-                        status, status_clock, status_temperatura, status_humidade);
+        AmbienteMessageResponse reply = new AmbienteMessageResponse(
+                status, status_clock, status_temperatura, status_humidade);
     }
 }
