@@ -15,19 +15,6 @@ plugins {
     application
 
     id("com.google.protobuf") version "0.9.5"
-
-    id("com.diffplug.spotless") version "8.1.0"
-}
-
-spotless {
-    java {
-        target("src/**/*.java")
-        googleJavaFormat().aosp()
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-
-    }
 }
 
 protobuf {
@@ -96,8 +83,4 @@ application {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
-}
-
-tasks.named("compileJava") {
-    dependsOn("spotlessApply")
 }
