@@ -68,9 +68,22 @@ public class ServerAmbienteRestMetricasUE {
                                         false));
             } else if (!device.get().isAtivo()) {
                 logger.error(
-                        "[MQTT] Métricas não registadas pois o dispositivo "
+                        "[REST] Métricas não registadas pois o dispositivo "
                                 + deviceId
                                 + " está desativo!");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(
+                                new AmbienteMessageResponse(
+                                        false,
+                                        AmbienteClockStatus.SUBMISSION_INVALID,
+                                        false,
+                                        false));
+            } else if (!device.get().getProtocolos().contains(Protocolo.REST)) {
+
+                logger.error(
+                        "[REST] Métricas não registadas pois o dispositivo "
+                                + deviceId
+                                + " não envia dados através deste protocolo!");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(
                                 new AmbienteMessageResponse(

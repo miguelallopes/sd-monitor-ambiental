@@ -2,12 +2,15 @@ package pt.ue.ambiente.server.data.entity;
 
 import java.util.Collection;
 
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
+import pt.ue.ambiente.server.data.enumeration.Protocolo;
 
 @Entity
 @Data
@@ -17,6 +20,10 @@ public class Dispositivo {
     private Long id;
 
     private String nome;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Collection<Protocolo> protocolos;
+
 
     @ManyToOne(optional = false)
     private Sala sala;

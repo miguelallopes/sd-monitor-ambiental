@@ -22,7 +22,6 @@ import pt.ue.ambiente.server.data.entity.Metricas;
 import pt.ue.ambiente.server.data.enumeration.Protocolo;
 import pt.ue.ambiente.server.message.AmbienteClockStatus;
 import pt.ue.ambiente.server.message.AmbienteMessagePublish;
-import pt.ue.ambiente.server.message.AmbienteMessageResponse;
 
 @Service
 public class ServerAmbienteMqttUE {
@@ -166,6 +165,14 @@ public class ServerAmbienteMqttUE {
                         "[MQTT] Métricas não registadas pois o dispositivo "
                                 + deviceId
                                 + " está desativo!");
+                return;
+            } else if (!device.get().getProtocolos().contains(Protocolo.MQTT)) {
+
+                logger.error(
+                        "[MQTT] Métricas não registadas pois o dispositivo "
+                                + deviceId
+                                + " não envia dados através deste protocolo!");
+
                 return;
             }
 

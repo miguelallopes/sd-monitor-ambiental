@@ -77,7 +77,7 @@ public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImp
         device = repositories.dispositivoRepository.findById(Long.valueOf(deviceId));
 
         if (device.isPresent()) {
-            if (device.get().isAtivo()) {
+            if (device.get().isAtivo() && device.get().getProtocolos().contains(Protocolo.gRPC)) {
 
                 if (humidade >= 0 && humidade <= 100) {
                     status_humidade = true;
@@ -110,9 +110,15 @@ public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImp
                 logger.info("-> Estado Temperatura (sucesso): " + status_temperatura);
                 logger.info("-> Estado Humidade (sucesso): " + status_humidade);
                 logger.info("-> Estado Clock: " + status_clock);
+            } else if (device.get().isAtivo()) {
+
+                logger.error(
+                        "[gRPC] Métricas não registadas pois o dispositivo "
+                                + deviceId
+                                + " não envia dados através deste protocolo!");
             } else {
                 logger.error(
-                        "[MQTT] Métricas não registadas pois o dispositivo "
+                        "[gRPC] Métricas não registadas pois o dispositivo "
                                 + deviceId
                                 + " está desativo!");
             }
