@@ -1,11 +1,8 @@
 # --- Gradle Build & Cache ---
-.gradle/
+**/.gradle/
 **/build/
 .gradletasknamecache
 gradle-app.setting
-
-# --- Local Configuration ---
-local.properties
 
 # --- Java & Kotlin Compiled Files ---
 *.class
@@ -14,7 +11,8 @@ local.properties
 
 # --- IDEs ---
 # Eclipse
-/bin/
+# Ignore 'bin' folders everywhere (root and subprojects)
+**/bin/
 .project
 .classpath
 .settings/
@@ -26,7 +24,6 @@ local.properties
 *.ipr
 out/
 
-# VS Code
 # --- VS Code ---
 .vscode/*
 !.vscode/settings.json
@@ -34,6 +31,9 @@ out/
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
+
+# --- Local Configuration ---
+local.properties
 
 # --- Editor Clutter & Backups ---
 *~
@@ -55,11 +55,9 @@ replay_pid*
 *.tar.gz
 *.rar
 
-# 2. Allow Gradle Wrapper
-!gradle/wrapper/gradle-wrapper.jar
+# --- Exceptions (Must be last) ---
+# 1. Allow Gradle Wrapper
+!**/gradle/wrapper/gradle-wrapper.jar
 
-# 3. Allow "build" folders if they are part of your source code
+# 2. Allow "build" folders if they are part of your source code
 !**/src/**/build/
-
-# Ficheiro
-*.env

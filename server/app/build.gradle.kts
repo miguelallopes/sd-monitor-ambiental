@@ -26,7 +26,7 @@ spotless {
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
-        
+
     }
 }
 
@@ -57,23 +57,23 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.data:spring-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    
+
     // GRPC
     runtimeOnly("io.grpc:grpc-netty-shaded:1.78.0")
     implementation("io.grpc:grpc-protobuf:1.78.0")
     implementation("io.grpc:grpc-stub:1.78.0")
-    
+
     //MQTT
     implementation("org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5")
-    
+
     //Database
     runtimeOnly("org.postgresql:postgresql:42.7.8")
-    
-	testImplementation("org.springframework.boot:spring-boot-starter-test:4.0.1")
-    
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test:4.0.1")
+
     //lombok
     compileOnly("org.projectlombok:lombok:1.18.42")
-  	annotationProcessor("org.projectlombok:lombok:1.18.42")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
 
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)

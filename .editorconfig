@@ -17,6 +17,9 @@ max_line_length = 120
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = true
 
+[{build.gradle.kts,settings.gradle.kts}]
+max_line_length = unset
+
 # --- Markdown ---
 # Must override global settings to allow formatting
 [*.md]
@@ -26,4 +29,8 @@ trim_trailing_whitespace = false
 # --- Data & Config ---
 # Must override global settings because 2 spaces is standard here
 [*.{xml,yaml,yml,json,properties}]
+indent_size = 2
+
+# --- Protocol Buffers ---
+[*.proto]
 indent_size = 2

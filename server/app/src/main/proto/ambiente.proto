@@ -27,4 +27,4 @@ message AmbienteServiceReply {
     AmbienteServiceClockStatus clock_status = 2;
     bool temperatura_status = 3;
     bool humidade_status = 4;
-} 
+}
