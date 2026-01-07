@@ -98,7 +98,7 @@ public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImp
                                 Protocolo.gRPC,
                                 temperatura,
                                 humidade,
-                                timestamp.toLocalDateTime()));
+                                timestamp != null ? timestamp.toLocalDateTime() : null));
 
                 logger.info("[gRPC] Métricas registadas com sucesso:");
                 logger.info("-> Dispositivo: " + deviceId);

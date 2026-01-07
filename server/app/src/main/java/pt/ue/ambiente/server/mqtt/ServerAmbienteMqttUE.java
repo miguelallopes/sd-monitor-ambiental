@@ -203,7 +203,7 @@ public class ServerAmbienteMqttUE {
                             Protocolo.MQTT,
                             temperatura,
                             humidade,
-                            timestamp.toLocalDateTime()));
+                            timestamp != null ? timestamp.toLocalDateTime() : null));
         } catch (DataIntegrityViolationException _) {
             logger.debug("[MQTT] Descartando metricas duplicadas do dispositivo " + deviceId);
             return;
@@ -234,11 +234,5 @@ public class ServerAmbienteMqttUE {
         logger.info("-> Estado Temperatura (sucesso): " + status_temperatura);
         logger.info("-> Estado Humidade (sucesso): " + status_humidade);
         logger.info("-> Estado Clock: " + status_clock);
-
-        // TODO: isto para baixo tem de se tirar
-
-        // Montar reply
-        AmbienteMessageResponse reply = new AmbienteMessageResponse(
-                status, status_clock, status_temperatura, status_humidade);
     }
 }
