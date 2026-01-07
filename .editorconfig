@@ -1,0 +1,29 @@
+root = true
+
+# --- Global Defaults ---
+# This acts as the baseline for Java, Docker, Git files, etc.
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 120
+
+# --- Kotlin & Gradle ---
+# We only list what differs from the global default or is specific to Kotlin
+[*.{kt,kts}]
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+
+# --- Markdown ---
+# Must override global settings to allow formatting
+[*.md]
+indent_size = 2
+trim_trailing_whitespace = false
+
+# --- Data & Config ---
+# Must override global settings because 2 spaces is standard here
+[*.{xml,yaml,yml,json,properties}]
+indent_size = 2

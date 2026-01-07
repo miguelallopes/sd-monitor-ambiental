@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "editorconfig.editorconfig",
+    "vscjava.vscode-java-pack",
+    "vscjava.vscode-spring-initializr",
+    "vmware.vscode-spring-boot"
+  ],
+  "unwantedRecommendations": []
+}
