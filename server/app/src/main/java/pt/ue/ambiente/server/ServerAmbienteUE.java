@@ -3,8 +3,6 @@
  */
 package pt.ue.ambiente.server;
 
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -15,6 +13,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import pt.ue.ambiente.server.data.ServerAmbienteDataUE;
 import pt.ue.ambiente.server.data.entity.Departamento;
 import pt.ue.ambiente.server.data.entity.Dispositivo;
@@ -33,13 +34,17 @@ public class ServerAmbienteUE implements CommandLineRunner {
 
     private Server grpcServer;
 
-    @Autowired private ServerAmbienteGrpcUE grpcServerAmbienteUE;
+    @Autowired
+    private ServerAmbienteGrpcUE grpcServerAmbienteUE;
 
-    @Autowired private ServerAmbienteMqttUE mqttServerAmbienteUE;
+    @Autowired
+    private ServerAmbienteMqttUE mqttServerAmbienteUE;
 
-    @Autowired private ServerAmbienteRestMetricasUE restMetricasServerAmbienteUE;
+    @Autowired
+    private ServerAmbienteRestMetricasUE restMetricasServerAmbienteUE;
 
-    @Autowired private ServerAmbienteDataUE repositories;
+    @Autowired
+    private ServerAmbienteDataUE repositories;
 
     public static void main(String[] args) {
         SpringApplication.run(ServerAmbienteUE.class, args);
@@ -62,10 +67,11 @@ public class ServerAmbienteUE implements CommandLineRunner {
         Dispositivo dispositivo = new Dispositivo("Device1", sala, departamento, piso, edificio);
         ArrayList<Protocolo> protocolos = new ArrayList<>();
         protocolos.add(Protocolo.gRPC);
+        protocolos.add(Protocolo.REST);
+        protocolos.add(Protocolo.REST);
         dispositivo.setProtocolos(protocolos);
         dispositivo.setAtivo(true);
         repositories.dispositivoRepository.save(dispositivo);
-
 
         try {
             // Start MQTT service

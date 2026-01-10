@@ -1,4 +1,4 @@
-package pt.ue.ambiente.client.mqtt.message;
+package pt.ue.ambiente.client.rest.message;
 
 import java.io.Serializable;
 

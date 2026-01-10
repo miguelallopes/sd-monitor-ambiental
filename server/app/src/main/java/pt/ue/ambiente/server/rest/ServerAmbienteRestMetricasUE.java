@@ -110,9 +110,9 @@ public class ServerAmbienteRestMetricasUE {
         try {
             timestamp = OffsetDateTime.parse(timestampStr);
             long diferenca = java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
-            if (diferenca > 15) {
+            if (diferenca > 25) {
                 status_clock = AmbienteClockStatus.SUBMISSION_CLOCK_EARLY;
-            } else if (diferenca < -15) {
+            } else if (diferenca < -25) {
                 status_clock = AmbienteClockStatus.SUBMISSION_CLOCK_LATE;
             } else {
                 status_clock = AmbienteClockStatus.SUBMISSION_SUCCESS;

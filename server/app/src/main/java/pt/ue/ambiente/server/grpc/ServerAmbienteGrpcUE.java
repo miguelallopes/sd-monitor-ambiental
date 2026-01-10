@@ -57,10 +57,10 @@ public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImp
 
             long diferenca = java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
 
-            if (diferenca > 15) {
+            if (diferenca > 25) {
                 // Relogio atrasado
                 status_clock = AmbienteServiceClockStatus.SUBMISSION_CLOCK_EARLY;
-            } else if (diferenca < -15) {
+            } else if (diferenca < -25) {
                 // Relogio adientado
                 status_clock = AmbienteServiceClockStatus.SUBMISSION_CLOCK_LATE;
             } else {
