@@ -26,16 +26,15 @@ public class ClientAmbienteMqttUE {
     private float ultimaTemperatura;
     private int ultimaHumidade;
 
-
     private final IMqttClient mqttClient;
     private final Random random;
 
     public ClientAmbienteMqttUE(String hostname, int port) throws MqttException {
         this.mqttClient = inicializarClienteMQTT(hostname, port);
         this.random = new Random();
-        ultimaTemperatura=temperatura_minima +(temperatura_maxima - temperatura_minima)* random.nextFloat();
-        ultimaHumidade = humidade_minima + random.nextInt(humidade_maxima-humidade_minima + 1);
-        ultimaTemperatura= new BigDecimal(ultimaTemperatura).setScale(2, RoundingMode.HALF_UP).floatValue();
+        ultimaTemperatura = temperatura_minima + (temperatura_maxima - temperatura_minima) * random.nextFloat();
+        ultimaHumidade = humidade_minima + random.nextInt(humidade_maxima - humidade_minima + 1);
+        ultimaTemperatura = new BigDecimal(ultimaTemperatura).setScale(2, RoundingMode.HALF_UP).floatValue();
     }
 
     private void gerarTempHumd() {
@@ -46,7 +45,7 @@ public class ClientAmbienteMqttUE {
         } else if (ultimaTemperatura > temperatura_maxima) {
             ultimaTemperatura = temperatura_maxima;
         }
-        ultimaTemperatura= new BigDecimal(ultimaTemperatura).setScale(2, RoundingMode.HALF_UP).floatValue();
+        ultimaTemperatura = new BigDecimal(ultimaTemperatura).setScale(2, RoundingMode.HALF_UP).floatValue();
 
         int variacaoHum = random.nextInt(3) - 1; // Variação entre -1, 0 e +1
         ultimaHumidade += variacaoHum;
@@ -110,15 +109,12 @@ public class ClientAmbienteMqttUE {
         publicar(deviceId, ultimaTemperatura, ultimaHumidade);
     }
 
-
     public static void main(String[] args) throws Exception {
-        // Processamento de Argumentos
         Integer deviceId = null;
         Float manualTemp = null;
         Integer manualHum = null;
         String hostname = null;
         Integer port = null;
-        // client-mqtt host porta devid <temperatura> <humidade>
 
         if (args.length >= 3) {
             hostname = args[0];

@@ -6,6 +6,8 @@ package pt.ue.ambiente.server;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import java.io.IOException;
+import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import pt.ue.ambiente.server.data.entity.Dispositivo;
 import pt.ue.ambiente.server.data.entity.Edificio;
 import pt.ue.ambiente.server.data.entity.Piso;
 import pt.ue.ambiente.server.data.entity.Sala;
+import pt.ue.ambiente.server.data.enumeration.Protocolo;
 import pt.ue.ambiente.server.grpc.ServerAmbienteGrpcUE;
 import pt.ue.ambiente.server.mqtt.ServerAmbienteMqttUE;
 import pt.ue.ambiente.server.rest.ServerAmbienteRestMetricasUE;
@@ -57,7 +60,12 @@ public class ServerAmbienteUE implements CommandLineRunner {
         repositories.edificioRepository.save(edificio);
 
         Dispositivo dispositivo = new Dispositivo("Device1", sala, departamento, piso, edificio);
+        ArrayList<Protocolo> protocolos = new ArrayList<>();
+        protocolos.add(Protocolo.gRPC);
+        dispositivo.setProtocolos(protocolos);
+        dispositivo.setAtivo(true);
         repositories.dispositivoRepository.save(dispositivo);
+
 
         try {
             // Start MQTT service
