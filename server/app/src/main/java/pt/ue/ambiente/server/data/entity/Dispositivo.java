@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
+import lombok.Singular;
 import pt.ue.ambiente.server.data.enumeration.Protocolo;
 
 @Entity
