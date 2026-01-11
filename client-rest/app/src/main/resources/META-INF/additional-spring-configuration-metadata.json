@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "ambiente.server.url",
+  "type": "java.lang.String",
+  "description": "Endpoint do servidor do ambiente'"
+}]}

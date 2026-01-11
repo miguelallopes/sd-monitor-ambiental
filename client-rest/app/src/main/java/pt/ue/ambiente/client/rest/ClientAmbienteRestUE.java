@@ -1,185 +1,118 @@
 package pt.ue.ambiente.client.rest;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.OffsetDateTime;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.retry.annotation.EnableRetry;
 
 import pt.ue.ambiente.client.rest.message.AmbienteMessagePublish;
-import pt.ue.ambiente.client.rest.message.AmbienteMessageResponse;
+import pt.ue.ambiente.client.rest.sensor.ClientAmbienteSensorUE;
 
-public class ClientAmbienteRestUE {
-    private static final Logger logger = Logger.getLogger(ClientAmbienteRestUE.class.getName());
-    public static final float temperatura_maxima = 30.0f;
-    public static final float temperatura_minima = 15.0f;
-    public static final int humidade_maxima = 80;
-    public static final int humidade_minima = 30;
-    private float ultimaTemperatura;
-    private int ultimaHumidade;
+@SpringBootApplication
+@EnableRetry
+public class ClientAmbienteRestUE implements CommandLineRunner {
 
-    private final RestClient restClient;
-    private final Random random;
+    private static final Logger logger = LoggerFactory.getLogger(ClientAmbienteRestUE.class);
 
-    public ClientAmbienteRestUE(String endpoint) {
-        this.restClient = inicializarClienteRest(endpoint);
-        this.random = new Random();
-        ultimaTemperatura = temperatura_minima + (temperatura_maxima - temperatura_minima) * random.nextFloat();
-        ultimaHumidade = humidade_minima + random.nextInt(humidade_maxima - humidade_minima + 1);
-        ultimaTemperatura = new BigDecimal(ultimaTemperatura).setScale(2, RoundingMode.HALF_UP).floatValue();
+    private final ClientAmbienteRestServiceUE ambienteRestService;
+
+    public ClientAmbienteRestUE(ClientAmbienteRestServiceUE ambienteRestService) {
+        this.ambienteRestService = ambienteRestService;
     }
 
-    private void gerarTempHumd() {
-        float variacaoTemp = (random.nextFloat() * 2.0f) - 1.0f; // Variação entre -1.0 e +1.0
-        ultimaTemperatura += variacaoTemp;
-        if (ultimaTemperatura < temperatura_minima) {
-            ultimaTemperatura = temperatura_minima;
-        } else if (ultimaTemperatura > temperatura_maxima) {
-            ultimaTemperatura = temperatura_maxima;
-        }
-        ultimaTemperatura = new BigDecimal(ultimaTemperatura).setScale(2, RoundingMode.HALF_UP).floatValue();
+    public static void erro(String mensagem) {
+        erro(mensagem, false);
+    }
 
-        int variacaoHum = random.nextInt(3) - 1; // Variação entre -1, 0 e +1
-        ultimaHumidade += variacaoHum;
-        if (ultimaHumidade < humidade_minima) {
-            ultimaHumidade = humidade_minima;
-        } else if (ultimaHumidade > humidade_maxima) {
-            ultimaHumidade = humidade_maxima;
+    public static void erro(String mensagem, boolean imprimirUtilizacao) {
+        System.err.println("ERRO: " + mensagem);
+        if (imprimirUtilizacao) {
+            System.err.println();
+            System.err.println("Utilização do cliente no modo de submissão continua:");
+            System.err.println("    cliente-rest <id> --ambiente.server.url=<endpoint> ");
+            System.err.println("Utilização do cliente no modo de submissão única: ");
+            System.err.println("    cliente-rest <id> <temperatura> <humidade> --ambiente.server.url=<endpoint> ");
+        }
+        System.err.flush();
+        System.exit(-1);
+    }
+
+    public static void main(String[] args) {
+        if (args.length == 0) {
+            erro("Nenhum parâmetro especificado!", true);
         }
 
+        SpringApplication.run(ClientAmbienteRestUE.class, args);
     }
 
-    public static RestClient inicializarClienteRest(String endpoint) {
-        RestClient client = RestClient.builder().baseUrl(endpoint).build();
-        return client;
+    @Override
+    public void run(String... args) {
+        int deviceId = -1;
+        float temperatura = -51;
+        int humidade = -1;
+        try {
+            deviceId = Integer.parseInt(args[0]);
+            if (deviceId <= 0)
+                erro("O parâmetro do id do dispositivo deve de ser igual ou maior que 1!");
+        } catch (NumberFormatException _) {
+            erro("O parâmetro do id do dispositivo espera um número!", true);
+        }
+
+        if (args.length >= 3) {
+            try {
+                temperatura = Float.parseFloat(args[1]);
+                if (temperatura < -50 || temperatura > 100) logger.warn("A temperatura especificada (" + temperatura  +"ºC) está fora dos limites considerados normais (-50º C a 100º C). O registo será efetuado mas a leitura será considerada inválida!");
+            } catch (NumberFormatException _) {
+                erro("O parâmetro da temperatura espera um número (ex: 18.75)!", true);
+            }
+
+            try {
+                humidade = Integer.parseInt(args[2]);
+                if (humidade < 0 || humidade > 100) logger.warn("A humidade especificada (" + humidade  +"%) está fora dos limites considerados normais (0% a 100%). O registo será efetuado mas a leitura será considerada inválida!");
+            } catch (NumberFormatException _) {
+                erro("O parâmetro da temperatura espera um número (ex: 18.75)!", true);
+            }
+
+            System.exit(modoSubmissaoUnica(deviceId, temperatura, humidade) ? 0 : 1);
+        } else {
+            modoSubmissaoContinua(deviceId);
+        }
     }
 
-    public void publicar(int deviceId, float temperatura, int humidade) {
+    private void modoSubmissaoContinua(int deviceId) {
+        BlockingQueue<AmbienteMessagePublish> queue = new LinkedBlockingQueue<>();
+        ExecutorService executor = Executors.newCachedThreadPool();
+
+        ClientAmbienteSensorUE sensor = new ClientAmbienteSensorUE(deviceId, queue);
+        executor.submit(sensor);
+        logger.info("[DISPOSITIVO-"+ deviceId + "] A geração de leituras ambientais foi iniciada!");
+
+        executor.submit(() -> {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    AmbienteMessagePublish message = queue.take();
+                    ambienteRestService.submeterLeituraAmbiente(message);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+    }
+
+    private boolean modoSubmissaoUnica(int deviceId, float temperatura, int humidade) {
         String timestamp = OffsetDateTime.now().toString();
-        AmbienteMessagePublish payload = new AmbienteMessagePublish(
-                deviceId, temperatura, humidade, timestamp);
+        AmbienteMessagePublish message = new AmbienteMessagePublish(deviceId, temperatura, humidade, timestamp);
 
-        logger.info("Iniciando envio REST [DevID: " + deviceId + "]");
+        var response = ambienteRestService.submeterLeituraAmbiente(message);
 
-        for (int tentativa = 1; tentativa <= 6; tentativa++) {
-            try {
-                ResponseEntity<AmbienteMessageResponse> response = restClient.post()
-                        .uri("/api/metrics/ingest")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(payload)
-                        .retrieve()
-                        .toEntity(AmbienteMessageResponse.class);
-
-                if (response.getBody() != null) {
-                    AmbienteMessageResponse body = response.getBody();
-                    logger.info("Sucesso (Tentativa " + tentativa + ")! Resposta: " + body.toString());
-
-                    if (!body.getStatus()) {
-                        logger.warning("Nota: Servidor aceitou, mas dados marcados como inválidos (Clock/Range).");
-                    }
-                }
-
-                return;
-
-            } catch (HttpClientErrorException e) {
-                if (e.getStatusCode().value() == 401) {
-                    logger.log(Level.SEVERE, "Erro Fatal 401: Dispositivo não autorizado.");
-                } else if (e.getStatusCode().value() == 403) {
-                    logger.log(Level.SEVERE, "Erro Fatal 403: Dispositivo inativo ou proibido.");
-                } else if (e.getStatusCode().value() == 409) {
-                    logger.log(Level.WARNING, "Erro 409: Dados duplicados.");
-                } else {
-                    logger.log(Level.SEVERE, "Erro Cliente HTTP: " + e.getStatusCode());
-                }
-                return;
-
-            } catch (HttpServerErrorException | ResourceAccessException e) {
-
-                logger.warning("Falha na tentativa " + tentativa + " de " + 6 + ". Erro: " + e.getMessage());
-
-                if (tentativa == 6) {
-                    logger.log(Level.SEVERE, "Desistindo após " + 6 + " tentativas falhadas.");
-                    break;
-                } else {
-                    try {
-                        long waitSeconds = (long) Math.pow(2, tentativa);
-                        long waitMs = waitSeconds * 1000;
-
-                        logger.info("Aguardando " + waitSeconds + " segundos antes de tentar novamente...");
-                        Thread.sleep(waitMs);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-                }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Erro inesperado na serialização ou sistema.", e);
-                return;
-            }
-        }
-    }
-
-    public void publicar(int deviceId) {
-        gerarTempHumd();
-
-        publicar(deviceId, ultimaTemperatura, ultimaHumidade);
-    }
-
-    public static void main(String[] args) throws Exception {
-        Integer deviceId = null;
-        Float manualTemp = null;
-        Integer manualHum = null;
-        String endpoint = null;
-
-        if (args.length >= 1) {
-            endpoint = args[0];
-
-            try {
-                deviceId = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                System.exit(-1);
-            }
-
-            if (args.length == 4) {
-                try {
-                    manualTemp = Float.valueOf(args[2]);
-                } catch (NumberFormatException e) {
-                    System.exit(-1);
-                }
-
-                try {
-                    manualHum = Integer.parseInt(args[3]);
-                } catch (NumberFormatException e) {
-                    System.exit(-1);
-                }
-            } else if (args.length != 2) {
-
-                System.exit(-1);
-            }
-        } else {
-            System.exit(-1);
-        }
-
-        ClientAmbienteRestUE cliente = new ClientAmbienteRestUE(endpoint);
-        if (manualTemp == null) {
-            while (true) {
-                cliente.publicar(deviceId);
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    break;
-                }
-            }
-        } else {
-            cliente.publicar(deviceId, manualTemp, manualHum);
-        }
+        return (response != null && response.getStatus());
     }
 }

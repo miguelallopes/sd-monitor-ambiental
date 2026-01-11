@@ -24,6 +24,8 @@ dependencies {
     // Spring REST client
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
+    implementation("org.springframework.boot:spring-boot-starter-aspectj")
+    implementation("org.springframework.retry:spring-retry:2.0.12")
 
     // Application dependency
     implementation(libs.guava)
