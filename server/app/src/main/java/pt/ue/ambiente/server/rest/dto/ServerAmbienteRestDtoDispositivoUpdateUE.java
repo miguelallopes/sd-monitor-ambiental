@@ -1,4 +1,4 @@
-package pt.ue.ambiente.server.rest.dao;
+package pt.ue.ambiente.server.rest.dto;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -14,7 +14,7 @@ import pt.ue.ambiente.server.data.entity.Edificio;
 import pt.ue.ambiente.server.data.enumeration.Protocolo;
 
 @Data
-public class ServerAmbienteRestDaoDispositivoUpdateUE implements Serializable {
+public class ServerAmbienteRestDtoDispositivoUpdateUE implements Serializable {
     private String nome;
     private Collection<Protocolo> protocolos;
     private Boolean estado;

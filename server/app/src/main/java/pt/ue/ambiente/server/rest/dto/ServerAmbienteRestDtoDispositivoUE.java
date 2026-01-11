@@ -1,4 +1,4 @@
-package pt.ue.ambiente.server.rest.dao;
+package pt.ue.ambiente.server.rest.dto;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -14,7 +14,7 @@ import pt.ue.ambiente.server.data.enumeration.Protocolo;
 
 
 @Data
-public class ServerAmbienteRestDaoDispositivoUE implements Serializable {
+public class ServerAmbienteRestDtoDispositivoUE implements Serializable {
     private Long idDispositivo;
     private String nome;
     private Collection<Protocolo> protocolos;
@@ -24,8 +24,8 @@ public class ServerAmbienteRestDaoDispositivoUE implements Serializable {
     private int piso;
     private String edificio;
 
-    public static ServerAmbienteRestDaoDispositivoUE fromDatabase(Dispositivo dbEntity) {
-        ServerAmbienteRestDaoDispositivoUE restEntity = new ServerAmbienteRestDaoDispositivoUE();
+    public static ServerAmbienteRestDtoDispositivoUE fromDatabase(Dispositivo dbEntity) {
+        ServerAmbienteRestDtoDispositivoUE restEntity = new ServerAmbienteRestDtoDispositivoUE();
         restEntity.setIdDispositivo(dbEntity.getId());
         restEntity.setNome(dbEntity.getNome());
         restEntity.setProtocolos(dbEntity.getProtocolos());
