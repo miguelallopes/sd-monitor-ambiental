@@ -1,38 +1,39 @@
 package pt.ue.ambiente.client.admin;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpResponse;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import pt.ue.ambiente.client.admin.api.ClientAmbienteAdminRestApiUE;
 
 @SpringBootApplication
 public class ClientAmbienteAdminUE implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientAmbienteAdminUE.class);
     private final Scanner scanner = new Scanner(System.in);
-    private final HttpClient client = HttpClient.newHttpClient();
+
+    @Autowired
+    private ClientAmbienteAdminRestApiUE restClient;
 
     public static void main(String[] args) {
-       // SpringApplication.run(ClientAmbienteAdminUE.class, args);
-         ClientAmbienteAdminUE app = new ClientAmbienteAdminUE();
-            app.run(args);
+        SpringApplication.run(ClientAmbienteAdminUE.class, args);
     }
 
     @Override
     public void run(String... args) {
+
+        System.out.print(restClient.dispositivoGetById(1));
         logger.info("Hello");
         // Implementar aqui
         System.out.println("\n\n============================================");
         System.out.println("   ADMINISTRAÇÃO - MONITORIZAÇÃO AMBIENTAL  ");
         System.out.println("============================================");
-
+        /*
         while (true) {
             System.out.println("\n=== MENU PRINCIPAL ===");
             System.out.println("1. Gestão de Dispositivos");
@@ -41,31 +42,40 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
             System.out.println("0. Sair");
             System.out.print("Opção: ");
 
+
             int opcao = scanner.nextInt();
 
-
             switch (opcao) {
-                case 1 : menuGestaoDispositivos();break;
-                case 2 : menuConsultaMetricas();break;
-                case 3 : verEstatisticas();break;
-                case 0 : {
+                case 1:
+                    menuGestaoDispositivos();
+                    break;
+                case 2:
+                    menuConsultaMetricas();
+                    break;
+                case 3:
+                    verEstatisticas();
+                    break;
+                case 0: {
                     System.out.println("A sair...");
                     return;
                 }
                 default:
-                     System.out.println("Opção inválida! Tente novamente.");
+                    System.out.println("Opção inválida! Tente novamente.");
             }
             System.out.println("\n(Pressione ENTER para continuar...)");
             scanner.nextLine();
 
-        }
+
+            */
+
+        
     }
 
-    private void enviarPedido(){
+    private void enviarPedido() {
 
     }
 
-    //opcao 1 Gestão de Dispositivos
+    // opcao 1 Gestão de Dispositivos
     private void menuGestaoDispositivos() {
         System.out.println("\n--- GESTÃO DE DISPOSITIVOS ---");
         System.out.println("1. Listar todos");
@@ -79,13 +89,25 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
         scanner.nextLine();
 
         switch (opcao) {
-            case 1: enviarPedido(); break;
-            case 2: criarDispositivo(); break;
-            case 3: atualizarDispositivo(); break;
-            case 4: removerDispositivo(); break;
-            case 5: verDetalhesDispositivo(); break;
-            case 0: return;
-            default: System.out.println("Opção inválida! Tente novamente.");
+            case 1:
+                enviarPedido();
+                break;
+            case 2:
+                criarDispositivo();
+                break;
+            case 3:
+                atualizarDispositivo();
+                break;
+            case 4:
+                removerDispositivo();
+                break;
+            case 5:
+                verDetalhesDispositivo();
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("Opção inválida! Tente novamente.");
         }
     }
 
@@ -101,7 +123,7 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
 
     private void removerDispositivo() {
         System.out.print("\nID do dispositivo a remover: ");
-       int id = scanner.nextInt();
+        int id = scanner.nextInt();
     }
 
     private void verDetalhesDispositivo() {
@@ -110,8 +132,7 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
         enviarPedido();
     }
 
-
-    //opcao 2 Métricas
+    // opcao 2 Métricas
     private void menuConsultaMetricas() {
         System.out.println("\n--- CONSULTA DE MÉTRICAS ---");
         System.out.println("1. Consultar por Sala");
@@ -126,25 +147,42 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
         String paramName = "";
 
         switch (opcao) {
-            case 1: paramName = "sala"; System.out.print("Nome da Sala: "); break;
-            case 2: paramName = "departamento"; System.out.print("Nome do Departamento: "); break;
-            case 3: paramName = "piso"; System.out.print("Número do Piso: "); break;
-            case 4: paramName = "edificio"; System.out.print("Nome do Edifício: "); break;
-            case 5: paramName = "deviceId"; System.out.print("ID do Dispositivo: "); break;
-            case 0: return;
-            default: System.out.println("Inválido"); return;
+            case 1:
+                paramName = "sala";
+                System.out.print("Nome da Sala: ");
+                break;
+            case 2:
+                paramName = "departamento";
+                System.out.print("Nome do Departamento: ");
+                break;
+            case 3:
+                paramName = "piso";
+                System.out.print("Número do Piso: ");
+                break;
+            case 4:
+                paramName = "edificio";
+                System.out.print("Nome do Edifício: ");
+                break;
+            case 5:
+                paramName = "deviceId";
+                System.out.print("ID do Dispositivo: ");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("Inválido");
+                return;
         }
 
     }
 
-    //opcao 3 Estatísticas
+    // opcao 3 Estatísticas
     private void verEstatisticas() {
         System.out.println("\n--- ESTATÍSTICAS DO SISTEMA ---");
         enviarPedido();
     }
 
-
-    //Leitura de Dados
+    // Leitura de Dados
     private void lerOpcaoSegura() {
 
     }
@@ -178,7 +216,5 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
         }
         return null;
     }
-
-
 
 }

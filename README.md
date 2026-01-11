@@ -5,9 +5,7 @@
 ### Servidor
 
 ```sh
-docker compose down
-docker compose build
-docker compose up
+docker compose up --build
 ```
 
 ### Cliente MQTT
@@ -43,11 +41,17 @@ gradle -p client-grpc run --args="<host> <porta> <id>  <temperatura> <humidade>"
 #### Modo Submissão Única
 
 ```sh
-gradle -p client-rest run --args="<id> --ambiente.server.url=<endpoint>"
+gradle -p client-rest bootRun --args="<id> --ambiente.server.url=<endpoint>"
 ```
 
 #### Modo Submissão Continua
 
 ```sh
-gradle -p client-rest run --args="<id> <temperatura> <humidade> --ambiente.server.url=<endpoint>"
+gradle -p client-rest bootRun --args="<id> <temperatura> <humidade> --ambiente.server.url=<endpoint>"
+```
+
+### Cliente Admin
+
+```sh
+gradle -p admin-cli bootRun --args="--ambiente.server.url=<endpoint>"
 ```
