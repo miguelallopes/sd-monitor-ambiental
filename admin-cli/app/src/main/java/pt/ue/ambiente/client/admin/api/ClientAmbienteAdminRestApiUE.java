@@ -3,7 +3,9 @@ package pt.ue.ambiente.client.admin.api;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -131,12 +133,20 @@ public class ClientAmbienteAdminRestApiUE {
         logger.info("[REST CLIENT] GET /api/metrics/average?level={}&id={}&from={}&to={}", level, id, from, to);
         try {
             StringBuilder uri = new StringBuilder("/api/metrics/average?level={level}&id={id}");
-            if (from != null)
+            Map<String, Object> params = new HashMap<>();
+            params.put("level", level);
+            params.put("id", id);
+
+            if (from != null) {
                 uri.append("&from={from}");
-            if (to != null)
+                params.put("from", from);
+            }
+            if (to != null) {
                 uri.append("&to={to}");
+                params.put("to", to);
+            }
             ServerAmbienteRestDtoDispositivoMediaMetricasUE dto = restClient.get()
-                    .uri(uri.toString(), level, id, from, to)
+                    .uri(uri.toString(), params)
                     .retrieve()
                     .body(ServerAmbienteRestDtoDispositivoMediaMetricasUE.class);
             logger.info("[REST CLIENT] Média recebida: {}", dto);
@@ -156,14 +166,21 @@ public class ClientAmbienteAdminRestApiUE {
                 invalid);
         try {
             StringBuilder uri = new StringBuilder("/api/metrics/raw?deviceId={deviceId}");
-            if (from != null)
+            Map<String, Object> params = new HashMap<>();
+            params.put("deviceId", deviceId);
+
+            if (from != null) {
                 uri.append("&from={from}");
-            if (to != null)
+                params.put("from", from);
+            }
+            if (to != null) {
                 uri.append("&to={to}");
+                params.put("to", to);
+            }
             if (invalid)
                 uri.append("&invalid=true");
             ServerAmbienteRestDtoDispositivoMetricasUE[] arr = restClient.get()
-                    .uri(uri.toString(), deviceId, from, to)
+                    .uri(uri.toString(), params)
                     .retrieve()
                     .body(ServerAmbienteRestDtoDispositivoMetricasUE[].class);
             logger.info("[REST CLIENT] Métricas recebidas: {}", arr != null ? arr.length : 0);
