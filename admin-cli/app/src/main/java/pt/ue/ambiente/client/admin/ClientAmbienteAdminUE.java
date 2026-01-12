@@ -1,5 +1,9 @@
 package pt.ue.ambiente.client.admin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -10,6 +14,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import pt.ue.ambiente.client.admin.api.ClientAmbienteAdminRestApiUE;
+import pt.ue.ambiente.client.admin.api.dto.ServerAmbienteRestDtoDispositivoCreateUE;
+import pt.ue.ambiente.client.admin.api.dto.ServerAmbienteRestDtoDispositivoMediaMetricasUE;
+import pt.ue.ambiente.client.admin.api.dto.ServerAmbienteRestDtoDispositivoMetricasUE;
+import pt.ue.ambiente.client.admin.api.dto.ServerAmbienteRestDtoDispositivoUE;
+import pt.ue.ambiente.client.admin.api.dto.ServerAmbienteRestDtoDispositivoUpdateUE;
+import pt.ue.ambiente.client.admin.api.enumeration.Level;
+import pt.ue.ambiente.client.admin.api.enumeration.Protocolo;
 
 @SpringBootApplication
 public class ClientAmbienteAdminUE implements CommandLineRunner {
@@ -26,10 +37,6 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-
-        System.out.print(restClient.dispositivoGetById(1));
-        logger.info("Hello");
-        // Implementar aqui
         System.out.println("\n\n============================================");
         System.out.println("   ADMINISTRAÇÃO - MONITORIZAÇÃO AMBIENTAL  ");
         System.out.println("============================================");
@@ -41,7 +48,6 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
             System.out.println("3. Estatísticas do Sistema");
             System.out.println("0. Sair");
             System.out.print("Opção: ");
-
 
             String opcao = scanner.nextLine();
 
@@ -55,166 +61,344 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
                 case "3":
                     verEstatisticas();
                     break;
-                case "0": {
+                case "0":
                     System.out.println("A sair...");
                     return;
-                }
                 default:
                     System.out.println("Opção inválida! Tente novamente.");
             }
-            System.out.println("\n(Pressione ENTER para continuar...)");
-            scanner.nextLine();
-
-
         }
-
-
     }
 
-    private void enviarPedido() {
+    // --- GESTÃO DE DISPOSITIVOS ---
 
-    }
-
-    // opcao 1 Gestão de Dispositivos
     private void menuGestaoDispositivos() {
-        System.out.println("\n--- GESTÃO DE DISPOSITIVOS ---");
-        System.out.println("1. Listar todos");
-        System.out.println("2. Adicionar novo");
-        System.out.println("3. Atualizar existente");
-        System.out.println("4. Remover dispositivo");
-        System.out.println("5. Visualizar detalhes");
-        System.out.println("0. Voltar");
+        while (true) {
+            System.out.println("\n--- GESTÃO DE DISPOSITIVOS ---");
+            System.out.println("1. Listar todos");
+            System.out.println("2. Adicionar novo");
+            System.out.println("3. Atualizar existente");
+            System.out.println("4. Remover dispositivo");
+            System.out.println("5. Visualizar detalhes");
+            System.out.println("0. Voltar");
+            System.out.print("Opção: ");
 
-        int opcao = scanner.nextInt();
-        scanner.nextLine();
+            String opcao = scanner.nextLine();
 
-        switch (opcao) {
-            case 1:
-                enviarPedido();
-                break;
-            case 2:
-                criarDispositivo();
-                break;
-            case 3:
-                atualizarDispositivo();
-                break;
-            case 4:
-                removerDispositivo();
-                break;
-            case 5:
-                verDetalhesDispositivo();
-                break;
-            case 0:
-                return;
-            default:
-                System.out.println("Opção inválida! Tente novamente.");
+            switch (opcao) {
+                case "1":
+                    listarDispositivos();
+                    break;
+                case "2":
+                    criarDispositivo();
+                    break;
+                case "3":
+                    atualizarDispositivo();
+                    break;
+                case "4":
+                    removerDispositivo();
+                    break;
+                case "5":
+                    verDetalhesDispositivo();
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println("Opção inválida!");
+            }
         }
     }
 
-    private void criarDispositivo() {
-        lerDadosDispositivo();
-    }
+    private void listarDispositivos() {
+        System.out.println("\n[Listar Dispositivos]");
+        List<ServerAmbienteRestDtoDispositivoUE> dispositivos = restClient.dispositivoList();
 
-    private void atualizarDispositivo() {
-        System.out.println("\n[Atualizar Dispositivo]");
-        System.out.print("ID do dispositivo a atualizar: ");
-        int id = scanner.nextInt();
-    }
+        if (dispositivos.isEmpty()) {
+            System.out.println("Nenhum dispositivo encontrado.");
+            return;
+        }
 
-    private void removerDispositivo() {
-        System.out.print("\nID do dispositivo a remover: ");
-        int id = scanner.nextInt();
+        System.out.printf("%-5s | %-20s | %-15s | %-10s | %-20s%n", "ID", "Nome", "Edifício", "Piso", "Estado");
+        System.out.println("-".repeat(80));
+        for (ServerAmbienteRestDtoDispositivoUE d : dispositivos) {
+            System.out.printf("%-5d | %-20s | %-15s | %-10d | %-20s%n",
+                    d.getIdDispositivo(),
+                    d.getNome(),
+                    d.getEdificio(),
+                    d.getPiso(),
+                    d.isEstado() ? "Ativo" : "Inativo");
+        }
     }
 
     private void verDetalhesDispositivo() {
         System.out.print("\nID do dispositivo: ");
-        int id = scanner.nextInt();
-        enviarPedido();
-    }
-
-    // opcao 2 Métricas
-    private void menuConsultaMetricas() {
-        System.out.println("\n--- CONSULTA DE MÉTRICAS ---");
-        System.out.println("1. Consultar por Sala");
-        System.out.println("2. Consultar por Departamento");
-        System.out.println("3. Consultar por Piso");
-        System.out.println("4. Consultar por Edifício");
-        System.out.println("5. Consultar Dispositivo Específico");
-        System.out.println("0. Voltar");
-
-        int opcao = scanner.nextInt();
-        scanner.nextLine();
-        String paramName = "";
-
-        switch (opcao) {
-            case 1:
-                paramName = "sala";
-                System.out.print("Nome da Sala: ");
-                break;
-            case 2:
-                paramName = "departamento";
-                System.out.print("Nome do Departamento: ");
-                break;
-            case 3:
-                paramName = "piso";
-                System.out.print("Número do Piso: ");
-                break;
-            case 4:
-                paramName = "edificio";
-                System.out.print("Nome do Edifício: ");
-                break;
-            case 5:
-                paramName = "deviceId";
-                System.out.print("ID do Dispositivo: ");
-                break;
-            case 0:
-                return;
-            default:
-                System.out.println("Inválido");
-                return;
-        }
-
-    }
-
-    // opcao 3 Estatísticas
-    private void verEstatisticas() {
-        System.out.println("\n--- ESTATÍSTICAS DO SISTEMA ---");
-        enviarPedido();
-    }
-
-    // Leitura de Dados
-    private void lerOpcaoSegura() {
-
-    }
-
-    private String lerDadosDispositivo() {
         try {
+            long id = Long.parseLong(scanner.nextLine());
+            Optional<ServerAmbienteRestDtoDispositivoUE> opt = restClient.dispositivoGetById(id);
 
-            System.out.print("ID (número): ");
-            int id = Integer.parseInt(scanner.nextLine());
+            if (opt.isPresent()) {
+                ServerAmbienteRestDtoDispositivoUE d = opt.get();
+                System.out.println("\n--- Detalhes do Dispositivo " + id + " ---");
+                System.out.println("Nome: " + d.getNome());
+                System.out.println("Estado: " + (d.isEstado() ? "Ativo" : "Inativo"));
+                System.out.println("Protocolos: " + d.getProtocolos());
+                System.out.println("Edifício: " + d.getEdificio());
+                System.out.println("Piso: " + d.getPiso());
+                System.out.println("Departamento: " + d.getDepartamento());
+                System.out.println("Sala: " + d.getSala());
+            } else {
+                System.out.println(" Dispositivo não encontrado.");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("ID inválido.");
+        }
+    }
 
-            System.out.print("Nome do Sensor: ");
-            String nome = scanner.nextLine();
+    private void criarDispositivo() {
+        System.out.println("\n[Novo Dispositivo]");
+        try {
+            ServerAmbienteRestDtoDispositivoCreateUE dto = new ServerAmbienteRestDtoDispositivoCreateUE();
+
+            System.out.print("Nome: ");
+            dto.setNome(scanner.nextLine());
 
             System.out.print("Edifício: ");
-            String edificio = scanner.nextLine();
-
-            System.out.print("Sala: ");
-            String sala = scanner.nextLine();
+            dto.setEdificio(scanner.nextLine());
 
             System.out.print("Piso (número): ");
-            int piso = Integer.parseInt(scanner.nextLine());
+            dto.setPiso(Integer.parseInt(scanner.nextLine()));
 
             System.out.print("Departamento: ");
-            String dept = scanner.nextLine();
+            dto.setDepartamento(scanner.nextLine());
 
-            System.out.println("Protocolo (1-GRPC, 2-MQTT, 3-REST): ");
+            System.out.print("Sala: ");
+            dto.setSala(scanner.nextLine());
+
+            dto.setProtocolos(lerProtocolos());
+            dto.setEstado(true); // Default ativo
+
+            Optional<ServerAmbienteRestDtoDispositivoUE> created = restClient.dispositivoCreate(dto);
+            if (created.isPresent()) {
+                System.out.println("Dispositivo criado com ID: " + created.get().getIdDispositivo());
+            } else {
+                System.out.println("Erro ao criar dispositivo.");
+            }
 
         } catch (NumberFormatException e) {
-            System.out.println("Erro: Valor numérico inválido.");
-            return null;
+            System.out.println("Erro: Entrada numérica inválida.");
         }
-        return null;
     }
 
+    private void atualizarDispositivo() {
+        System.out.println("\n[Atualizar Dispositivo]");
+        try {
+            System.out.print("ID do dispositivo a atualizar: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            Optional<ServerAmbienteRestDtoDispositivoUE> existingOpt = restClient.dispositivoGetById(id);
+            if (existingOpt.isEmpty()) {
+                System.out.println("Dispositivo não encontrado.");
+                return;
+            }
+            ServerAmbienteRestDtoDispositivoUE existing = existingOpt.get();
+
+            ServerAmbienteRestDtoDispositivoUpdateUE dto = new ServerAmbienteRestDtoDispositivoUpdateUE();
+
+            System.out.println("Deixe em branco para manter o valor atual (" + existing.getNome() + ")");
+            System.out.print("Novo Nome: ");
+            String nome = scanner.nextLine();
+            if (!nome.isBlank()) dto.setNome(nome);
+
+            System.out.println("Deixe em branco para manter (" + existing.getEdificio() + ")");
+            System.out.print("Novo Edifício: ");
+            String edificio = scanner.nextLine();
+            if (!edificio.isBlank()) dto.setEdificio(edificio);
+
+            System.out.println("Deixe em branco para manter (" + existing.getPiso() + ")");
+            System.out.print("Novo Piso: ");
+            String pisoStr = scanner.nextLine();
+            if (!pisoStr.isBlank()) dto.setPiso(Integer.parseInt(pisoStr));
+
+            System.out.println("Deixe em branco para manter (" + existing.getDepartamento() + ")");
+            System.out.print("Novo Departamento: ");
+            String dept = scanner.nextLine();
+            if (!dept.isBlank()) dto.setDepartamento(dept);
+
+            System.out.println("Deixe em branco para manter (" + existing.getSala() + ")");
+            System.out.print("Nova Sala: ");
+            String sala = scanner.nextLine();
+            if (!sala.isBlank()) dto.setSala(sala);
+
+            System.out.println("Deseja alterar protocolos? (s/n)");
+            if (scanner.nextLine().equalsIgnoreCase("s")) {
+                dto.setProtocolos(lerProtocolos());
+            }
+
+            System.out.println("Novo Estado (1-Ativo, 0-Inativo, ENTER-Manter): ");
+            String estadoStr = scanner.nextLine();
+            if (estadoStr.equals("1")) dto.setEstado(true);
+            else if (estadoStr.equals("0")) dto.setEstado(false);
+
+            Optional<ServerAmbienteRestDtoDispositivoUE> updated = restClient.dispositivoUpdate(id, dto);
+            if (updated.isPresent()) {
+                System.out.println("Dispositivo atualizado com sucesso.");
+            } else {
+                System.out.println("Erro ao atualizar dispositivo.");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Erro: Entrada numérica inválida.");
+        }
+    }
+
+    private void removerDispositivo() {
+        System.out.print("\nID do dispositivo a remover: ");
+        try {
+            long id = Long.parseLong(scanner.nextLine());
+            if (restClient.delete(id)) {
+                System.out.println("Dispositivo removido.");
+            } else {
+                System.out.println("Erro ao remover (verifique se ID existe).");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("ID inválido.");
+        }
+    }
+
+    // --- CONSULTA DE MÉTRICAS ---
+
+    private void menuConsultaMetricas() {
+        while (true) {
+            System.out.println("\n--- CONSULTA DE MÉTRICAS ---");
+            System.out.println("1. Consultar por Sala");
+            System.out.println("2. Consultar por Departamento");
+            System.out.println("3. Consultar por Piso");
+            System.out.println("4. Consultar por Edifício");
+            System.out.println("5. Métricas Brutas (Raw) de um Dispositivo");
+            System.out.println("0. Voltar");
+            System.out.print("Opção: ");
+
+            String opcao = scanner.nextLine();
+            Level level = null;
+            String entityId = "";
+
+            switch (opcao) {
+                case "1":
+                    level = Level.sala;
+                    System.out.print("Nome da Sala: ");
+                    entityId = scanner.nextLine();
+                    break;
+                case "2":
+                    level = Level.departamento;
+                    System.out.print("Nome do Departamento: ");
+                    entityId = scanner.nextLine();
+                    break;
+                case "3":
+                    level = Level.piso;
+                    System.out.print("Número do Piso: ");
+                    entityId = scanner.nextLine();
+                    break;
+                case "4":
+                    level = Level.edificio;
+                    System.out.print("Nome do Edifício: ");
+                    entityId = scanner.nextLine();
+                    break;
+                case "5":
+                    consultarMetricasRaw();
+                    return;
+                case "0":
+                    return;
+                default:
+                    System.out.println("Opção inválida.");
+                    continue;
+            }
+
+            if (level != null) {
+                System.out.print("Data Início (yyyy-MM-ddTHH:mm:ss) [ENTER para pular]: ");
+                String from = scanner.nextLine();
+                if (from.isBlank()) from = null;
+
+                System.out.print("Data Fim (yyyy-MM-ddTHH:mm:ss) [ENTER para pular]: ");
+                String to = scanner.nextLine();
+                if (to.isBlank()) to = null;
+
+                Optional<ServerAmbienteRestDtoDispositivoMediaMetricasUE> media = restClient.metricsAverage(level, entityId, from, to);
+                if (media.isPresent()) {
+                    System.out.println("\n--- Resultados ---");
+                    System.out.println("Temp Média: " + media.get().getTemperaturaMedia() + "°C");
+                    System.out.println("Humidade Média: " + media.get().getHumidadeMedia() + "%");
+                } else {
+                    System.out.println("Nenhum dado encontrado para os critérios.");
+                }
+            }
+        }
+    }
+
+    private void consultarMetricasRaw() {
+        try {
+            System.out.print("ID do Dispositivo: ");
+            int deviceId = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("Data Início (yyyy-MM-ddTHH:mm:ss) [ENTER para pular]: ");
+            String from = scanner.nextLine();
+            if (from.isBlank()) from = null;
+
+            System.out.print("Data Fim (yyyy-MM-ddTHH:mm:ss) [ENTER para pular]: ");
+            String to = scanner.nextLine();
+            if (to.isBlank()) to = null;
+
+            System.out.print("Incluir leituras inválidas? (s/n): ");
+            boolean invalid = scanner.nextLine().equalsIgnoreCase("s");
+
+            List<ServerAmbienteRestDtoDispositivoMetricasUE> metrics = restClient.metricsRaw(deviceId, from, to, invalid);
+
+            if (metrics.isEmpty()) {
+                System.out.println("Nenhuma métrica encontrada.");
+                return;
+            }
+
+            System.out.printf("%-25s | %-10s | %-10s | %-10s%n", "Data/Hora", "Temp", "Hum", "Status");
+            System.out.println("-".repeat(65));
+            for (ServerAmbienteRestDtoDispositivoMetricasUE m : metrics) {
+                System.out.printf("%-25s | %-10.1f | %-10d | %-10s%n",
+                        m.getTempoRegisto(),
+                        m.getTemperatura(),
+                        m.getHumidade(),
+                        m.getStatus() ? "OK" : "Inválido");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("ID inválido.");
+        }
+    }
+
+    // --- UTILITÁRIOS ---
+
+    private void verEstatisticas() {
+        System.out.println("\n--- ESTATÍSTICAS DO SISTEMA ---");
+        List<ServerAmbienteRestDtoDispositivoUE> all = restClient.dispositivoList();
+        System.out.println("Total de Dispositivos Registados: " + all.size());
+        long ativos = all.stream().filter(ServerAmbienteRestDtoDispositivoUE::isEstado).count();
+        System.out.println("Dispositivos Ativos: " + ativos);
+        System.out.println("Dispositivos Inativos: " + (all.size() - ativos));
+    }
+
+    private List<Protocolo> lerProtocolos() {
+        List<Protocolo> protos = new ArrayList<>();
+        System.out.println("Selecione os protocolos (separados por vírgula):");
+        System.out.println("1. gRPC");
+        System.out.println("2. MQTT");
+        System.out.println("3. REST");
+        System.out.print("Escolha: ");
+        String input = scanner.nextLine();
+
+        for (String s : input.split(",")) {
+            switch (s.trim()) {
+                case "1": protos.add(Protocolo.gRPC); break;
+                case "2": protos.add(Protocolo.MQTT); break;
+                case "3": protos.add(Protocolo.REST); break;
+            }
+        }
+        return protos;
+    }
 }
