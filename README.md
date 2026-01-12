@@ -1,5 +1,10 @@
 # Sistema de Monitorização Ambiental para a Universidade de Évora
 
+**Trabalho Realizado Por:**
+
+- [Miguel Pinto, 58122](https://github.com/MiguelPinto20)
+- [Miguel Lopes, 58540](https://github.com/miguelallopes)
+
 ## Como compilar/Executar
 
 ### Servidor
