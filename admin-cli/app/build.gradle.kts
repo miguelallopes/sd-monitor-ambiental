@@ -48,3 +48,6 @@ application {
 tasks.test {
     useJUnitPlatform()
 }
+tasks.getByName<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    standardInput = System.`in`
+}

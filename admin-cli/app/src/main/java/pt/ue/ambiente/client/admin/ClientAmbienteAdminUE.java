@@ -33,7 +33,7 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
         System.out.println("\n\n============================================");
         System.out.println("   ADMINISTRAÇÃO - MONITORIZAÇÃO AMBIENTAL  ");
         System.out.println("============================================");
-        /*
+
         while (true) {
             System.out.println("\n=== MENU PRINCIPAL ===");
             System.out.println("1. Gestão de Dispositivos");
@@ -43,19 +43,19 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
             System.out.print("Opção: ");
 
 
-            int opcao = scanner.nextInt();
+            String opcao = scanner.nextLine();
 
             switch (opcao) {
-                case 1:
+                case "1":
                     menuGestaoDispositivos();
                     break;
-                case 2:
+                case "2":
                     menuConsultaMetricas();
                     break;
-                case 3:
+                case "3":
                     verEstatisticas();
                     break;
-                case 0: {
+                case "0": {
                     System.out.println("A sair...");
                     return;
                 }
@@ -66,9 +66,9 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
             scanner.nextLine();
 
 
-            */
+        }
 
-        
+
     }
 
     private void enviarPedido() {
