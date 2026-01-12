@@ -118,14 +118,19 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
             return;
         }
 
-        System.out.printf("%-5s | %-20s | %-15s | %-10s | %-20s%n", "ID", "Nome", "Edifício", "Piso", "Estado");
-        System.out.println("-".repeat(80));
+        System.out.printf("%-4s | %-15s | %-10s | %-4s | %-10s | %-15s | %-20s | %-7s%n",
+                "ID", "Nome", "Edifício", "Piso", "Sala", "Depto", "Protocolos", "Estado");
+        System.out.println("-".repeat(105));
         for (ServerAmbienteRestDtoDispositivoUE d : dispositivos) {
-            System.out.printf("%-5d | %-20s | %-15s | %-10d | %-20s%n",
+            String protos = d.getProtocolos() != null ? d.getProtocolos().toString() : "[]";
+            System.out.printf("%-4d | %-15.15s | %-10.10s | %-4d | %-10.10s | %-15.15s | %-20.20s | %-7s%n",
                     d.getIdDispositivo(),
                     d.getNome(),
                     d.getEdificio(),
                     d.getPiso(),
+                    d.getSala(),
+                    d.getDepartamento(),
+                    protos,
                     d.isEstado() ? "Ativo" : "Inativo");
         }
     }
@@ -274,7 +279,7 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
             System.out.println("2. Consultar por Departamento");
             System.out.println("3. Consultar por Piso");
             System.out.println("4. Consultar por Edifício");
-            System.out.println("5. Métricas Brutas (Raw) de um Dispositivo");
+            System.out.println("5. Métricas Brutas de um Dispositivo");
             System.out.println("0. Voltar");
             System.out.print("Opção: ");
 
@@ -295,8 +300,17 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
                     break;
                 case "3":
                     level = Level.piso;
-                    System.out.print("Número do Piso: ");
-                    entityId = scanner.nextLine();
+                    while (true) {
+                        System.out.print("Número do Piso: ");
+                        String input = scanner.nextLine();
+                        try {
+                            Integer.parseInt(input);
+                            entityId = input;
+                            break;
+                        } catch (NumberFormatException e) {
+                            System.out.println("Erro: O piso deve ser um número inteiro. Tente novamente.");
+                        }
+                    }
                     break;
                 case "4":
                     level = Level.edificio;
@@ -357,14 +371,15 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
                 return;
             }
 
-            System.out.printf("%-25s | %-10s | %-10s | %-10s%n", "Data/Hora", "Temp", "Hum", "Status");
-            System.out.println("-".repeat(65));
+            System.out.printf("%-25s | %-10s | %-10s | %-10s | %-25s%n", "Data/Hora", "Temp", "Hum", "Status", "Relógio");
+            System.out.println("-".repeat(90));
             for (ServerAmbienteRestDtoDispositivoMetricasUE m : metrics) {
-                System.out.printf("%-25s | %-10.1f | %-10d | %-10s%n",
+                System.out.printf("%-25s | %-10.1f | %-10d | %-10s | %-25s%n",
                         m.getTempoRegisto(),
                         m.getTemperatura(),
                         m.getHumidade(),
-                        m.getStatus() ? "OK" : "Inválido");
+                        m.getStatus() ? "OK" : "Inválido",
+                        m.getAmbienteClockStatus());
             }
 
         } catch (NumberFormatException e) {
@@ -385,7 +400,7 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
 
     private List<Protocolo> lerProtocolos() {
         List<Protocolo> protos = new ArrayList<>();
-        System.out.println("Selecione os protocolos (separados por vírgula):");
+        System.out.println("Selecione os protocolos (usando os números, separados por vírgula):");
         System.out.println("1. gRPC");
         System.out.println("2. MQTT");
         System.out.println("3. REST");
