@@ -11,6 +11,7 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +29,8 @@ public class ServerAmbienteMqttUE {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerAmbienteMqttUE.class);
 
-    // TODO: isto deve de ser apanhado da application.properties
-    private static final String BROKER = "tcp://messagebroker:1883";
+    @Value("${server.ambiente.mqttbroker}")
+    private String BROKER;
 
     private static final String TOPIC = "ambiente";
 

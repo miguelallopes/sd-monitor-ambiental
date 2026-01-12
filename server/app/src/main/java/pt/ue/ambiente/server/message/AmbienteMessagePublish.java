@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 /// Implementacao comum para o mqtt e rest
 public class AmbienteMessagePublish implements Serializable {
+
     int deviceId;
     float temperatura;
     int humidade;
@@ -33,26 +34,43 @@ public class AmbienteMessagePublish implements Serializable {
     }
 
     public byte[] toMqttMessage() {
-        return new String(deviceId + ";" + temperatura + ";" + humidade + ";" + timestamp)
-                .getBytes();
+        return new String(deviceId + ";" + temperatura + ";" + humidade + ";" + timestamp).getBytes();
     }
 
     public static AmbienteMessagePublish fromMqttPayload(byte[] payload) {
+        if (payload == null) throw new IllegalArgumentException("Payload MQTT inválida");
+
         String message = new String(payload);
         String[] parts = message.split(";");
         if (parts.length != 4) {
-            throw new IllegalArgumentException(
-                    "Invalid MQTT payload: expected 4 fields, got " + parts.length);
+            throw new IllegalArgumentException("Payload MQTT inválida ou incompleta: " + message);
         }
+
+        float temperatura = -50;
+        int humidade = -1;
+        int deviceId = -1;
+        String timestamp = null;
+
         try {
-            int deviceId = Integer.parseInt(parts[0]);
-            float temperatura = Float.parseFloat(parts[1]);
-            int humidade = Integer.parseInt(parts[2]);
-            String timestamp = parts[3];
-            return new AmbienteMessagePublish(deviceId, temperatura, humidade, timestamp);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                    "Invalid number format in MQTT payload: " + message, e);
+            deviceId = Integer.parseInt(parts[0]);
+        } catch (NumberFormatException _) {
+            throw new IllegalArgumentException("Parâmetro deviceId da payload MQTT inválido: " + parts[0]);
         }
+
+        try {
+            temperatura = Float.parseFloat(parts[1]);
+        } catch (NumberFormatException _) {
+            throw new IllegalArgumentException("Parâmetro temperatura da payload MQTT inválido: " + parts[1]);
+        }
+
+        try {
+            humidade = Integer.parseInt(parts[2]);
+        } catch (NumberFormatException _) {
+            throw new IllegalArgumentException("Parâmetro humidade da payload MQTT inválido: " + parts[2]);
+        }
+
+        timestamp = parts[3];
+
+        return new AmbienteMessagePublish(deviceId, temperatura, humidade, timestamp);
     }
 }
