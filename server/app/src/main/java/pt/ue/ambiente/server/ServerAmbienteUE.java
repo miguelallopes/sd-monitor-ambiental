@@ -68,7 +68,7 @@ public class ServerAmbienteUE implements CommandLineRunner {
         ArrayList<Protocolo> protocolos = new ArrayList<>();
         protocolos.add(Protocolo.gRPC);
         protocolos.add(Protocolo.REST);
-        protocolos.add(Protocolo.REST);
+        protocolos.add(Protocolo.MQTT);
         dispositivo.setProtocolos(protocolos);
         dispositivo.setAtivo(true);
         repositories.dispositivoRepository.save(dispositivo);

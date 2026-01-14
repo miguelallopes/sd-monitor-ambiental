@@ -1,5 +1,6 @@
 package pt.ue.ambiente.server.mqtt;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
@@ -191,7 +192,7 @@ public class ServerAmbienteMqttUE {
         try {
             timestamp = OffsetDateTime.parse(timestampStr);
 
-            long diferenca = java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
+            long diferenca = Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
             if (diferenca > 25) {
                 status_clock = AmbienteClockStatus.SUBMISSION_CLOCK_EARLY;
             } else if (diferenca < -25) {

@@ -1,5 +1,6 @@
 package pt.ue.ambiente.server.grpc;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
@@ -55,7 +56,7 @@ public class ServerAmbienteGrpcUE extends AmbienteServiceGrpc.AmbienteServiceImp
         try {
             timestamp = OffsetDateTime.parse(request.getTimestamp());
 
-            long diferenca = java.time.Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
+            long diferenca = Duration.between(timestamp, tempoInicioProcessamento).getSeconds();
 
             if (diferenca > 25) {
                 // Relogio atrasado

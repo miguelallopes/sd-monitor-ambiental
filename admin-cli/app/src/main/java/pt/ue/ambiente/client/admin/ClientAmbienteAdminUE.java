@@ -1,5 +1,6 @@
 package pt.ue.ambiente.client.admin;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -371,15 +372,18 @@ public class ClientAmbienteAdminUE implements CommandLineRunner {
                 return;
             }
 
-            System.out.printf("%-25s | %-10s | %-10s | %-10s | %-25s%n", "Data/Hora", "Temp", "Hum", "Status", "Relógio");
-            System.out.println("-".repeat(90));
+            System.out.printf("%-25s | %-10s | %-10s | %-10s | %-10s | %-40s%n", "Data/Hora", "Temp", "Hum", "Status", "Protocolo", "Relógio");
+            System.out.println("-".repeat(120));
             for (ServerAmbienteRestDtoDispositivoMetricasUE m : metrics) {
-                System.out.printf("%-25s | %-10.1f | %-10d | %-10s | %-25s%n",
+                long diferenca = Duration.between(m.getTempoDispositivo(), m.getTempoRegisto()).toMillis();
+                String clockInfo = String.format("%s (%+dms)", m.getAmbienteClockStatus(), diferenca);
+                System.out.printf("%-25s | %-10.1f | %-10d | %-10s | %-10s | %-40s%n",
                         m.getTempoRegisto(),
                         m.getTemperatura(),
                         m.getHumidade(),
                         m.getStatus() ? "OK" : "Inválido",
-                        m.getAmbienteClockStatus());
+                        m.getProtocolo(),
+                        clockInfo);
             }
 
         } catch (NumberFormatException e) {
